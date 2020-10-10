@@ -1,0 +1,25 @@
+{% extends "inventory/inventorybase.html" %}
+
+{% block title %}
+Inventory - {{uom.unit_name}}
+{% endblock title %}
+
+{% block inventory %}
+    <div class="container">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">{{uom.unit_name}}</h5>
+              <p class="card-text">
+                  <p>{{uom.unit_description}}</p>
+                  <ul class="list-group">
+                      <li class="list-group-item">{{uom.base_quantity}}</li>
+                      <li class="list-group-item">{{uom.stock.stock_name}}</li>
+                      <li class="list-group-item">{{uom.purchase_price}}</li>
+                      <li class="list-group-item">{{uom.selling_price}}</li>
+                  </ul>
+              </p>
+              <a href="{% url 'inventory:unit-update' uom.pk %}" class="card-link">Update</a>
+            </div>
+          </div>
+    </div>
+{% endblock inventory %}

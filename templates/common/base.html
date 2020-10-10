@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        {% block title %}
+        {% endblock title %}
+    </title>
+    <link rel="stylesheet" href="{% static 'printjs/print.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-4.5.2-dist/css/bootstrap.min.css' %}">
+    {% block style %}
+    {% endblock style %}
+
+</head>
+
+<body>
+    <header>
+        {% include 'common/header.html' %}
+
+        {% block nav %}
+        {% endblock nav %}
+    </header>
+    <div class="container">
+        <div class="row">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </div>
+
+    <script type="text/javascript" src="{% static 'scripts/jquery-3.5.1.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bootstrap-4.5.2-dist/js/bootstrap.min.js' %}"></script>
+    {% block javascript %}
+    {% endblock javascript %}
+
+</body>
+
+</html>

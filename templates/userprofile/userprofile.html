@@ -1,0 +1,34 @@
+{% extends 'common/base.html' %}
+
+{% block title %}
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="">
+    <h5 class="">
+        {{ user.get_full_name }} 
+        {% if user.is_staff is True %}<i class="img-circle" aria-hidden="true"></i>{% endif %} 
+        <small id="">@{{ user.username }}</small>
+    </h5>
+    <small>
+        {% if user.is_authenticated %}
+            
+            {% if user == user.profile.user %}
+                <div class="profile-list">
+                </div>
+            {% endif %}
+                
+        {% endif %}
+        
+        {% if user == user.profile.user %}
+            <small>
+                <li><i class="" aria-hidden="true"></i> {{ user.date_joined }}</a></li>
+                <li><i class="" aria-hidden="true"></i> Last Login: {{ user.last_login }}</li>
+            </small>
+        {% endif %}
+    </ul>
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,17 @@
+{% extends "inventory/inventorybase.html" %}
+
+{% block title %}
+Goods receipts list
+{% endblock title %}
+
+{% block inventory%}
+<div class="container-fluid">
+    {% for receipt in all_receipts %}
+        <div class="card">
+            <div class="card-body">
+            <a href="{% url 'inventory:goods-receipt-detail' receipt.slug receipt.id %}">{{receipt.receipt_number}}</a>
+            </div>
+      </div>
+    {% endfor %}
+</div>
+{% endblock inventory%}

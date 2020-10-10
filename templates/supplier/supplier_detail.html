@@ -1,0 +1,33 @@
+{% extends "supplier/supplierbase.html" %}
+
+{% block title%}
+    Suppliers - {{supplier.supplier_name}}
+{% endblock title%}
+
+{% block supplier %}
+<div class="card" style="width: 18rem;">
+    <div class="card-body">
+        <h5 class="card-title">{{supplier.supplier_name}}</h5>
+        <p class="card-text">
+            <ul class="list-group">
+                <li class="list-group-item">{{supplier.pin}}</li>
+                <li class="list-group-item">{{supplier.vat_number}}</li>
+                <li class="list-group-item">{{supplier.contacts}}</li>
+              </ul>
+        </p>
+        <a href="{% url 'supplier:supplier_update' supplier.slug supplier.pk %}" class="card-link">Update</a>
+        <a href="{% url 'supplier:supplier_delete' supplier.pk %}" class="card-link">Delete</a>
+    </div>
+</div>
+<div style="float: right;" class="ml-5">
+    <ul class="list-group">
+        {% for receipt in receipts %}
+            <li class="list-group-item">
+                <a href="{% url 'inventory:goods-receipt-detail' receipt.slug receipt.id %}">
+                    {{receipt.receipt_number}}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock supplier %}

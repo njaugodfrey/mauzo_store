@@ -1,0 +1,56 @@
+{% extends "inventory/inventorybase.html" %}
+{% load static %}
+
+{% block inventory %}
+<div class="container">
+    <div class="container-fluid">
+        <form id="receipt-form" data-units-url="{% url 'inventory:uom-list' %}">
+            <div class="row">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group col-4">
+                    <label class="col-12">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <div id="results"></div> <!-- errors go here -->
+                <input type="submit" class="btn btn-primary" value="Add item" data-url="{% url 'inventory:new-item' receipt.slug receipt.id %}" id="add_item" />
+            </div>
+        </form>
+    </div>
+    {{unit.unit_name}}
+
+    <table class="table table-bordered">
+        <thead>
+            <th>Item name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Amount</th>
+            <th>Actions</th>
+        </thead>
+        <tbody id="receipt-items">
+            {% for item in items %}
+                <tr>
+                    <td>{{item.stock.stock_name}}</td>
+                    <td>{{item.quantity}}</td>
+                    <td>{{item.price}}</td>
+                    <td>{{item.amount}}</td>
+                    <td>
+                        <a class="item-remove" data-url="{% url 'inventory:remove-item' slug=receipt.slug pk=receipt.id item_pk=item.pk %}" id="remove-item-{{item.pk}}">
+                        <button type="button" class="btn btn-danger">Remove</button>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center bg-warning">Empty receipt</td>
+                    </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock inventory %}
+
+{% block javascript %}
+<script type="text/javascript" src="{% static 'printjs/print.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'scripts/grn.js' %}"></script>
+{% endblock javascript %}

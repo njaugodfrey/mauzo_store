@@ -1,0 +1,14 @@
+{% extends "common/base.html" %}
+
+{% block nav %}
+    <nav class="nav nav-pills nav-justified mb-4">
+        <a class="nav-item nav-link" href="{% url 'supplier:all_suppliers' %}">Suppliers</a>
+        <a class="nav-item nav-link" href="{% url 'supplier:new_supplier' %}">New supplier</a>
+        <a class="nav-item nav-link" href="#">Link</a>
+    </nav>
+{% endblock nav %}
+
+{% block content %}
+    {% block supplier %}
+    {% endblock supplier %}
+{% endblock content %}

@@ -1,0 +1,33 @@
+{% extends "inventory/inventorybase.html" %}
+
+{% block title %}
+Inventory - Units
+{% endblock title %}
+
+{% block inventory %}
+    <div class="container">
+        <div class="card" style="width: 30rem;">
+            <div class="card-body">
+              <h5 class="card-title">Add new or update unit</h5>
+                <form class="form", action="", method="POST", enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <ul class="list-group">
+                    {% for field in form %}
+                        <li class="list-group-item">{{field}}</li>
+                    {% endfor %}
+                    </ul>
+                    <button type="submit" class="btn white-text black card-link">Submit</button>
+                </form>
+            </div>
+          </div>
+    </div>
+{% endblock inventory %}
+
+<h2>Add new or update unit</h2>
+<form class="form", action="", method="POST", enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form %}
+        <p>{{field}}</p>
+    {% endfor %}
+    <button type="submit" class="btn white-text black">Submit</button>
+</form>

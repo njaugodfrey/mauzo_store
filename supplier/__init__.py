@@ -1,0 +1,2 @@
+def Supplier():
+    return None

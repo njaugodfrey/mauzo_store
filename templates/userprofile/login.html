@@ -1,0 +1,21 @@
+{% extends 'common/base.html' %}
+
+{% block title %}
+    Login
+{% endblock title %}
+    
+{% block content %}
+<div class="container">
+    <div class="container">    
+        <h2>Log in to My Site</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}" />
+            {% for field in form %}
+                {{field}}
+            {% endfor %}
+            <button type="submit" class="btn white-text black">Log in</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

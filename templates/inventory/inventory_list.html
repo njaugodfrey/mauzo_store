@@ -1,0 +1,38 @@
+{% extends "inventory/inventorybase.html" %}
+
+{% block title %}
+Inventory
+{% endblock title %}
+
+{% block inventory %}
+<a class="mb-4 mt-2" href="{% url 'inventory:create_item' %}">
+    <button type="button" class="btn btn-dark">New item</button>
+</a>
+
+<div class="container-fluid">
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th>Stock code</th>
+                <th>Item name</th>
+                <th>Purchase price</th>
+                <th>Selling price</th>
+                <th>Quantity</th>
+                <th>Vat code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in all_items %}
+                <tr>
+                    <td>{{item.stock_code}}</td>
+                    <td><a href="{% url 'inventory:stock_detail' item.slug item.id %}">{{item.stock_name}}</a></td>
+                    <td>{{item.purchase_price}}</td>
+                    <td>{{item.selling_price_1}}</td>
+                    <td>{{item.quantity}}</td>
+                    <td>{{item.stock_vat_code.vat_code}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock inventory %}

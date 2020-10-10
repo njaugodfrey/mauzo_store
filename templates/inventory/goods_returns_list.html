@@ -1,0 +1,17 @@
+{% extends "inventory/inventorybase.html" %}
+
+{% block title %}
+Goods returns list
+{% endblock title %}
+
+{% block inventory%}
+<div class="container-fluid">
+    {% for return in all_returns %}
+        <div class="card">
+            <div class="card-body">
+            <a href="{% url 'inventory:goods-returns-detail' return.slug return.id %}">{{return.return_number}}</a>
+            </div>
+      </div>
+    {% endfor %}
+</div>
+{% endblock inventory%}

@@ -1,0 +1,21 @@
+{% extends "customer/customerbase.html" %}
+
+{% block title %}
+Customers - {{customer.customer_name}}
+{% endblock title %}
+
+{% block customer %}
+<div class="card" style="width: 18rem;">
+    <div class="card-body">
+        <h5 class="card-title">{{customer.customer_name}}</h5>
+        <p class="card-text">
+            <ul class="list-group">
+                <li class="list-group-item">{{customer.customer_full_name}}</li>
+                <li class="list-group-item">{{customer.phone_number}}</li>
+                <li class="list-group-item">{{customer.location}}</li>
+              </ul>
+        </p>
+        <a href="{% url 'customer:update_customer' customer.slug customer.pk %}" class="card-link">Update</a>
+    </div>
+</div>
+{% endblock customer %}

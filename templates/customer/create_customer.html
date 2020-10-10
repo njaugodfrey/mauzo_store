@@ -1,0 +1,15 @@
+{% extends "customer/customerbase.html" %}
+
+{% block title %}
+Customers - New customer
+{% endblock title %}
+
+{% block customer %}
+<h3>New customer</h3>
+
+<form method="post" class="form-group">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit" class="save btn btn-default">Save</button>
+</form>
+{% endblock customer %}

@@ -1,0 +1,27 @@
+{% extends "inventory/inventorybase.html" %}
+
+{% block title %}
+Inventory - {{item.stock_name}}
+{% endblock title %}
+
+{% block inventory %}
+<div class="card" style="width: 20rem;">
+    <div class="card-body">
+        <h5 class="card-title">{{item.stock_name}}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">{{item.stock_code}}</h6>
+        <p class="card-text">
+            <ul class="list-group">
+                <li class="list-group-item">Available quantity: {{item.quantity}}{{item.unit_name}}</li>
+                <li class="list-group-item">{{item.stock_vat_code.code_name}}--{{item.stock_vat_code.code_percentage}}</li>
+            </ul>
+        </p>
+        <a href="{% url 'inventory:stock_update' item.slug item.id %}" class="card-link">Update</a>
+    </div>
+</div>
+
+<div style="float: right;">
+    {% for received in received_items %}
+    {{received.document_ref.receipt_number}}
+    {% endfor %}
+</div>
+{% endblock inventory %}

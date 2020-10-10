@@ -1,0 +1,7 @@
+django
+pillow
+djangorestframework
+markdown
+drf-writable-nested
+mysqlclient
+django-widget-tweaks

@@ -1,0 +1,34 @@
+{% extends "customer/customerbase.html" %}
+
+{% block title %}
+Customers
+{% endblock title %}
+
+{% block customer %}
+<a class="mb-4 mt-2" href="{% url 'customer:new_customer' %}">
+    <button type="button" class="btn btn-dark">New customer</button>
+</a>
+
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Customer name</th>
+            <th scope="col">Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for customer in all_customers %}
+            <tr>
+                <th scope="row">{{customer.pk}}</th>
+                <td>
+                    <a href="{% url 'customer:customer_detail' customer.slug customer.pk %}">
+                        {{customer.customer_name}}
+                    </a>
+                </td>
+                <td>{{customer.balance}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock customer %}

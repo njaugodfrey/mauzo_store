@@ -1,0 +1,83 @@
+{% extends "sales/salesbase.html" %}
+{% load static %}
+
+{% block title %}
+Sales - All receipts
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <a href="{% url 'sales:print-return' receipt.pk %}">Print</a>
+    <span class="badge badge-primary mb-4">
+        Receipt - {{receipt.receipt_number}}
+    </span>
+    <table class="table table-bordered">
+      <thead>
+          <th>Item name</th>
+          <th>Quantity</th>
+          <th>Unit</th>
+          <th>Price</th>
+          <th>Amount</th>
+          <th>Actions</th>
+      </thead>
+      <tbody id="return-items">
+        {% for item in items %}
+            {% if item.void_sale != True %}
+                <tr>
+                    <td id="item-name">{{item.product.stock_name}}</td>
+                    <td id="item-quantity">{{item.quantity}}</td>
+                    <td id="item-uom">{{item.unit_of_measurement}}</td>
+                    <td id="item-price">{{item.price}}</td>
+                    <td id="item-amount">{{item.amount}}</td>
+                    <td id="">
+                    <a class="item-return" data-return-url="{% url 'sales:return-product' slug=receipt.slug pk=receipt.id item_pk=item.pk %}" id="remove-item-{{item.pk}}">
+                        <button type="button" class="btn btn-danger">Remove</button>
+                        </a>
+                    </td>
+                </tr>
+            {% endif %}
+            
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center bg-warning">Empty receipt</td>
+                </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div>
+        <span class="badge badge-success mt-2 mb-4">
+            Voided items
+        </span>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <th>Item name</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+            <th>Price</th>
+            <th>Amount</th>
+        </thead>
+        <tbody id="returned-items-table">
+            {% for item in returned_items %}
+                <tr>
+                    <td id="item-name">{{item.product.stock_name}}</td>
+                    <td id="item-quantity">{{item.quantity}}</td>
+                    <td id="item-uom">{{item.unit_of_measurement}}</td>
+                    <td id="item-price">{{item.price}}</td>
+                    <td id="item-amount">{{item.amount}}</td>
+                </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center bg-warning">Empty receipt</td>
+                    </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'scripts/salesrcpt.js' %}"></script>
+{% endblock javascript %}

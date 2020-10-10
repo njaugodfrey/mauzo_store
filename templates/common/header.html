@@ -1,0 +1,8 @@
+{% load static %}
+
+<nav class="navbar container nav-pills flex-column flex-sm-row navbar-light bg-light mt-2 mb-4">
+    <a class="navbar-brand" href="{% url 'sales:all_receipts' %}">Sales</a>
+    <a class="navbar-brand" href="{% url 'customer:customers_list' %}">Customers</a>
+    <a class="navbar-brand" href="{% url 'supplier:all_suppliers' %}">Suppliers</a>
+    <a class="navbar-brand" href="{% url 'inventory:stocks_list' %}">Inventory</a>
+</nav>

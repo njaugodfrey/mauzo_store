@@ -1,0 +1,36 @@
+{% extends "sales/salesbase.html" %}
+{% load static %}
+
+{% block title %}
+Sales - {{receipt.receipt_number}}
+{% endblock title %}
+
+
+{% block receipt %}
+    <div class="col-3 mt-5">
+        <form class="form-inline" method="POST">
+            {% csrf_token %}
+            
+            <div class="form-check form-check-inline">
+                {% for field in form %}
+                    <div class="mx-3">
+                        {{field}}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="form-check form-check-inline">
+                <button type="submit" class="btn"> Add</button>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="col-3 mt-5">
+
+    </div>
+{% endblock receipt %}
+
+{% block javascript %}
+<script type="text/javascript" src="{% static 'scripts/receipt.items.js' %}"></script>
+{% endblock javascript %}

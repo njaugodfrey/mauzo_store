@@ -1,0 +1,16 @@
+{% extends "common/base.html" %}
+
+{% block nav %}
+    <nav class="nav nav-pills nav-justified mb-4">
+        <a class="nav-item nav-link" href="{% url 'inventory:create_item' %}">New Item</a>
+        <a class="nav-item nav-link" href="{% url 'inventory:new-goods-receipt' %}">Receive goods</a>
+        <a class="nav-item nav-link" href="{% url 'inventory:goods-receipts-list' %}">Goods receipts list</a>
+        <a class="nav-item nav-link" href="{% url 'inventory:new-goods-returns' %}">Return goods</a>
+        <a class="nav-item nav-link" href="{% url 'inventory:goods-returns-list' %}">Goods returns list</a>
+    </nav>
+{% endblock nav %}
+
+{% block content %}
+    {% block inventory %}
+    {% endblock inventory %}
+{% endblock content %}
