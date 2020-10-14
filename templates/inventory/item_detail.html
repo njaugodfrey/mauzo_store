@@ -16,6 +16,16 @@ Inventory - {{item.stock_name}}
             </ul>
         </p>
         <a href="{% url 'inventory:stock_update' item.slug item.id %}" class="card-link">Update</a>
+        <a href="{% url 'inventory:unit-create' %}" class="card-link">Add unit</a>
+    </div>
+    <div class="units">
+        {% for unit in units %}
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="{% url 'inventory:unit-detail' unit.pk %}">{{unit.unit_name}}</a>
+                </li>
+            </ul>
+        {% endfor %}
     </div>
 </div>
 

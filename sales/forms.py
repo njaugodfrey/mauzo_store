@@ -6,9 +6,7 @@ from inventory import models as inventory
 class SalesReceiptForm(forms.ModelForm):
     class Meta:
         model = SalesReceipt
-        fields = [
-            'walkin_customer', 'debtors_account'
-        ]
+        fields = ['walkin_customer']
 
 
 class SoldGoodsForm(forms.ModelForm):

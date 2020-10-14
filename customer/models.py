@@ -28,7 +28,7 @@ class Customer(models.Model):
         null=True
     )
     balance = models.FloatField(
-        verbose_name='Balance'
+        verbose_name='Balance', default=0
     )
     slug = models.SlugField(
         default=''

@@ -1,29 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from django.urls import reverse_lazy
-from django.views import generic
-from django.http import JsonResponse, HttpResponse, QueryDict
+from django.http import HttpResponse, QueryDict
 from django.utils.timezone import datetime
-from django.forms.models import model_to_dict
-from django.template.loader import render_to_string
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.template import loader
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
 import json, csv
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-
-from .models import (
-    Stock, GoodsReturned, GoodsReceipt, UnitOfMeasurement,
-    ReceivedGoods, ReturnedGoods
-)
-from .serializers import StockSerializer, GoodsReceiptSerializer
+from .models import *
 from .forms import *
 from mauzo.decorators import allowed_user
-import random
 
 
 # Create your views here.
@@ -49,8 +34,12 @@ def stock_detail(request, pk, slug):
     ).order_by(
         '-document_ref__receipt_date'
     ).select_related()
+    units = UnitOfMeasurement.objects.filter(
+        stock=pk
+    ).select_related()
     context = {
         'item': item,
+        'units': units,
         'received_items': received
     }
     return render(
@@ -152,7 +141,8 @@ def create_unit(request):
         form.save()
         return redirect(
             'inventory:stock_detail',
-            pk=form.instance.stock.stock_id
+            pk=form.instance.stock.id,
+            slug=form.instance.stock.slug
         )
     
     context = {
@@ -160,7 +150,7 @@ def create_unit(request):
     }
     return render(
         request, template_name='inventory/unitofmeasurement_form.html',
-        context=form
+        context=context
     )
 
 
@@ -176,7 +166,8 @@ def update_unit(request, pk):
         form.save()
         return redirect(
             'inventory:stock_detail',
-            pk=form.instance.stock.stock_id
+            pk=form.instance.stock.id,
+            slug=form.instance.stock.slug
         )
     
     context = {
@@ -184,13 +175,8 @@ def update_unit(request, pk):
     }
     return render(
         request, template_name='inventory/unitofmeasurement_form.html',
-        context=form
+        context=context
     )
-
-
-class UnitDelete(DeleteView):
-    model = UnitOfMeasurement
-    success_url = reverse_lazy('inventory:stocks_list')
 
 
 # Goods receipt notes
@@ -505,10 +491,8 @@ def remove_returns_items(request, pk, slug, item_pk):
         stock_obj_quantity = stock_obj.quantity
         stock_obj.quantity = int(stock_obj_quantity) + int(item.quantity)
         stock_obj.save()
-        
 
-        response_data = {}
-        response_data['msg'] = 'Item removed.'
+        response_data = {'msg': 'Item removed.'}
 
         return HttpResponse(
             json.dumps(response_data),
@@ -518,5 +502,91 @@ def remove_returns_items(request, pk, slug, item_pk):
     else:
         return HttpResponse(
             json.dumps({"nothing to see": "this isn't happening"}),
+            content_type="application/json"
+        )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def create_write_on(request):
+    last_write_on = StockWriteOn.objects.all().order_by('write_on_number').last()
+    if not last_write_on:
+        write_on_number = 'SWO-' + str(1).zfill(4)
+    else:
+        document_number = last_write_on.write_on_number
+        document_int = int(document_number[4:])
+        new_document_int = document_int + 1
+        new_document_number = 'SWO-' + str(new_document_int).zfill(4)
+        write_on_number = new_document_number
+    write_on_date = datetime.today()
+    input_by = request.user
+
+    new_write_on = StockWriteOn(
+        write_on_date=write_on_date,
+        write_on_number=write_on_number,
+        input_by=input_by
+    )
+    new_write_on.save()
+    return redirect(
+        '', slug=new_write_on.slug, pk=new_write_on.pk
+    )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def write_on_details(request, pk, slug):
+    form = WriteOnForm(request.POST or None)
+    writeon = get_object_or_404(StockWriteOn, pk=pk)
+
+    context = {
+        'form': form,
+        'writeon': writeon
+    }
+    return render(
+        request, template_name='inventory/stock_write_on.html',
+        context=context
+    )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def add_write_on_items(request, pk, slug):
+    if request.method == 'POST':
+        item = request.POST.get('item')
+        quantity = request.POST.get('quantity')
+        unit = request.POST.get('unit')
+
+        # process form
+        write_on_item = GoodsWrittenOn(
+            document_ref=StockWriteOn.objects.get(id=pk),
+            stock=Stock.objects.get(pk=item),
+            quantity=quantity,
+            unit_of_measurement=UnitOfMeasurement.objects.get(pk=unit)
+        )
+        write_on_item.save()
+
+        # update stock quantity
+        item_unit = UnitOfMeasurement.objects.get(pk=unit)
+        stock_item = Stock.objects.get(pk=item)
+        received_stock = float(item_unit.base_quantity) * float(quantity)
+        stock_item.quantity = stock_item.quantity + received_stock
+        stock_item.save()
+
+        # data to respond with
+        response_data = {
+            'result': 'Item saved successfully',
+            'item_id': write_on_item.pk,
+            'item_name': write_on_item.stock.stock_name,
+            'itme_quantity': write_on_item.quantity
+        }
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+
+    else:
+        return HttpResponse(
+            json.dumps({"nothing to see": "action not successful"}),
             content_type="application/json"
         )

@@ -1,46 +1,58 @@
 import json, csv
 
-from django.http import (
-    JsonResponse, HttpResponse, QueryDict,
-    HttpResponseNotFound
-)
-from django.core import serializers
-from django.template.loader import render_to_string
+from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from django.views import generic
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.timezone import datetime
 from django.db.models import Sum, Q
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
-from rest_framework import status, viewsets
-from rest_framework.filters import OrderingFilter
-
-from .serialisers import ReceiptItemsSerializer, ReceiptSerializer
 from .forms import *
+from .filters import SalesFilter
 from .models import SalesReceipt, SoldGoods, SalesReceiptVoid
 from inventory.models import Stock, UnitOfMeasurement
-from userprofile.models import Profile
 from companyprofile.models import Company
+from customer.models import Customer
 from mauzo.decorators import allowed_user
 
 
 # Create your views here.
 
-
+# sales receipt
 @login_required
 def receipts_list(request):
-    context = {}
-    context['all_receipts'] = SalesReceipt.objects.all().order_by('-receipt_number')
+    receipts = SalesReceipt.objects.all().order_by('-receipt_number')
+    receipts_filter = SalesFilter(request.GET, queryset=receipts)
+    context = {
+        'all_receipts': receipts,
+        'filter': receipts_filter
+    }
     return render(
         request, template_name='sales/receipts_list.html',
         context=context
     )
+
+
+def filter_receipts(request):
+    if 'q' in request.GET:
+        query = request.GET['q']
+        date_obj = datetime.strptime(query, '%d-%m-%Y')
+
+        receipts = SalesReceipt.objects.filter(
+            sale_date__icontains=query
+        )
+
+        context = {
+            'receipts': receipts
+        }
+        return render(
+            request, template_name='sales/filtered_receipts.html',
+            context=context
+        )
+
+
+def print_sales(request):
+    sales = SalesReceipt.objects.all
 
 
 @login_required
@@ -62,13 +74,13 @@ def create_sales_receipt(request):
             obj.receipt_number = new_receipt_number
 
         obj.sale_date = datetime.today()
-        if obj.debtors_account: obj.is_credit = True
+        # if obj.debtors_account: obj.is_credit = True
         obj.salesman = request.user
         obj.save()
         return redirect(
             'sales:view_receipt', slug=obj.slug, pk=obj.id
         )
-    
+
     context = {
         'form': form
     }
@@ -89,17 +101,51 @@ def update_sales_receipt(request, pk, slug):
         return redirect(
             'sales:view_receipt', slug=receipt.slug, pk=receipt.id
         )
-    
+
     context = {
         'form': form
     }
     return render(
-        request,  template_name='sales/create_sales_receipt.html',
+        request, template_name='sales/create_sales_receipt.html',
         context=context
     )
 
 
+# sales invoice
 @login_required
+@allowed_user(['Accounts'])
+def create_sales_invoice(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    last_receipt = SalesReceipt.objects.all().order_by('receipt_number').last()
+    if not last_receipt:
+        receipt_number = 'SI' + str(datetime.today().month).zfill(2) + \
+                             str(datetime.today().day).zfill(2) + '001'
+    else:
+        receipt_number = last_receipt.receipt_number
+        receipt_int = int(receipt_number[7:11])
+        new_receipt_int = receipt_int + 1
+        new_receipt_number = 'SI' + str(datetime.today().month).zfill(2) + \
+                             str(datetime.today().day).zfill(2) + str(new_receipt_int).zfill(4)
+        receipt_number = new_receipt_number
+    sale_date = datetime.today()
+    is_credit = True
+    salesman = request.user
+
+    new_invoice = SalesReceipt(
+        sale_date=sale_date,
+        receipt_number=receipt_number,
+        is_credit=is_credit,
+        debtors_account=customer,
+        salesman=salesman
+    )
+    new_invoice.save()
+    return redirect(
+        'sales:view_receipt', slug=new_invoice.slug, pk=new_invoice.id
+    )
+
+
+@login_required
+@allowed_user(['Accounts'])
 def sales_receipt_detail(request, pk, slug):
     receipt = get_object_or_404(SalesReceipt, pk=pk)
     form = SoldGoodsForm(request.POST or None)
@@ -139,7 +185,7 @@ def unit_values(request):
 @login_required
 def add_receipt_items(request, pk, slug):
     if request.method == 'POST':
-        #grab form values
+        # grab form values
         item = request.POST.get('item')
         quantity = request.POST.get('quantity')
         price = request.POST.get('price')
@@ -157,7 +203,7 @@ def add_receipt_items(request, pk, slug):
                 quantity=quantity,
                 unit_of_measurement=UnitOfMeasurement.objects.get(pk=uom),
                 price=sprice,
-                vat= round(float(vat)*float(sprice))/float(100+float(vat)),
+                vat=round(float(vat) * float(sprice)) / float(100 + float(vat)),
                 amount=float(quantity) * float(sprice)
             )
             receipt_item.save()
@@ -194,7 +240,7 @@ def add_receipt_items(request, pk, slug):
                 json.dumps({"nothing to see": "action not successful"}),
                 content_type="application/json"
             )
-    
+
     else:
         return HttpResponse(
             json.dumps({"nothing to see": "action not successful"}),
@@ -221,14 +267,13 @@ def remove_receipt_items(request):
         receipt.total = receipt.total - item.amount
         receipt.save()
 
-        response_data = {}
-        response_data['msg'] = 'Item removed.'
+        response_data = {'msg': 'Item removed.'}
 
         return HttpResponse(
             json.dumps(response_data),
             content_type="application/json"
         )
-    
+
     else:
         return HttpResponse(
             json.dumps({"nothing to see": "this isn't happening"}),
@@ -241,17 +286,17 @@ def print_sales_receipt(request, pk):
     company = Company.objects.get(pk=1)
     receipt = SalesReceipt.objects.get(pk=pk)
     items = SoldGoods.objects.filter(receipt_ref=pk).select_related()
-    
+
     with open("receipt.txt", "w") as rcpt:
         response = HttpResponse()
         response['content_type'] = 'text/plain'
         response['Content-Disposition'] = 'attachment; filename=receipt.txt'
         response.writelines(
             [company.company_name + '\n',
-            company.telephone_1 + '\n',
-            company.telephone_2 + '\n',
-            company.kra_pin + '\n',
-            company.kra_vat + '\n'],
+             company.telephone_1 + '\n',
+             company.telephone_2 + '\n',
+             company.kra_pin + '\n',
+             company.kra_vat + '\n'],
         )
         response.writelines([
             receipt.receipt_number + '\n',
@@ -275,9 +320,25 @@ def print_sales_receipt(request, pk):
         response.write('-----------------------------------------\n')
         tax_items = items.values('product__stock_vat_code__vat_code').annotate(Sum('vat'))
         for result in tax_items:
-            result.vat_code
-            for key in result:
-                response.write(result[key])
+            result
+            '''for key in result:
+                response.write(result[key])'''
+
+        response.write('-----------------------------------------\n')
+        response.write('You were served by: ' + str(receipt.salesman).upper() + '\n')
+        response.write('-----------------------------------------\n')
+        response.write('Prices inclusive of VAT where applicable')
+        response.writelines('\n')
+        # Duplicate
+        response.write('-----------------------------------------\n')
+        response.write('\t\t Copy \n')
+        response.write('-----------------------------------------\n')
+        response.write('Receipt No:' + receipt.receipt_number + '\n')
+        response.write(
+            'Sale date: ' + str(receipt.sale_date.strftime("%d/%m/%Y")) + '\n'
+        )
+        response.write('Amount: ' + str(receipt.total))
+        response.write('Salesman: ' + str(receipt.salesman).upper() + '\n')
 
     return response
 
@@ -302,10 +363,10 @@ def sales_returns(request, pk, slug, item_pk):
             receipt_ref=SalesReceipt.objects.get(pk=return_rcpt.receipt_ref.pk),
             sale_item_ref=SoldGoods.objects.get(pk=sale_item),
             product=Stock.objects.get(pk=return_rcpt.product.pk),
-            quantity= -int(return_rcpt.quantity),
+            quantity=-int(return_rcpt.quantity),
             unit_of_measurement=UnitOfMeasurement.objects.get(pk=return_rcpt.unit_of_measurement.pk),
-            price= -return_rcpt.price,
-            amount= -int(return_rcpt.quantity) * int(float(return_rcpt.price))
+            price=-return_rcpt.price,
+            amount=-int(return_rcpt.quantity) * int(float(return_rcpt.price))
         )
         return_item.save()
 
@@ -363,10 +424,10 @@ def print_sales_returns(request, pk):
         response['Content-Disposition'] = 'attachment; filename=void_receipt.txt'
         response.writelines(
             [company.company_name + '\n',
-            company.telephone_1 + '\n',
-            company.telephone_2 + '\n',
-            company.kra_pin + '\n',
-            company.kra_vat + '\n'],
+             company.telephone_1 + '\n',
+             company.telephone_2 + '\n',
+             company.kra_pin + '\n',
+             company.kra_vat + '\n'],
         )
         response.writelines([
             receipt.receipt_number + '\n',

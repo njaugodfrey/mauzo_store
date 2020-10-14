@@ -1,5 +1,4 @@
 from django.db import models
-from django.urls import reverse
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 from userprofile import models as userprofiles

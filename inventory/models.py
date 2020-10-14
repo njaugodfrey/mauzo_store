@@ -26,16 +26,13 @@ class Stock(models.Model):
         max_length=10
     )
     stock_supplier = models.ManyToManyField(
-        Supplier
+        Supplier, blank=True
     )
     purchase_price = models.FloatField(
         verbose_name='Purchase price'
     )
     selling_price_1 = models.FloatField(
         verbose_name='Selling price 1'
-    )
-    selling_price_2 = models.FloatField(
-        verbose_name='Selling price 2'
     )
     quantity = models.FloatField(
         verbose_name='Stock in hand', default=0
@@ -203,3 +200,78 @@ class ReturnedGoods(models.Model):
         verbose_name='Amount'
     )
 
+
+class StockWriteOn(models.Model):
+    write_on_date = models.DateField(
+        auto_now_add=True, verbose_name='Date'
+    )
+    write_on_number = models.CharField(
+        max_length=50, verbose_name='Number'
+    )
+    input_by = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        verbose_name='Input by'
+    )
+    slug = models.SlugField
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.write_on_number)
+        super(StockWriteOn, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return '{}'.format(self.write_on_number)
+
+
+class GoodsWrittenOn(models.Model):
+    document_ref = models.ForeignKey(
+        StockWriteOn, on_delete=models.PROTECT,
+        related_name='write_on_note'
+    )
+    stock = models.ForeignKey(
+        Stock, on_delete=models.PROTECT
+    )
+    quantity = models.IntegerField(
+        verbose_name='Quantity'
+    )
+    unit_of_measurement = models.ForeignKey(
+        UnitOfMeasurement,
+        on_delete=models.SET_NULL, null=True
+    )
+
+
+class StockWriteOff(models.Model):
+    write_on_date = models.DateField(
+        auto_now_add=True, verbose_name='Date'
+    )
+    write_off_number = models.CharField(
+        max_length=50, verbose_name='Number'
+    )
+    input_by = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        verbose_name='Input by'
+    )
+    slug = models.SlugField
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.write_off_number)
+        super(StockWriteOff, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return '{}'.format(self.write_off_number)
+
+
+class GoodsWrittenOff(models.Model):
+    document_ref = models.ForeignKey(
+        StockWriteOff, on_delete=models.PROTECT,
+        related_name='write_off_note'
+    )
+    stock = models.ForeignKey(
+        Stock, on_delete=models.PROTECT
+    )
+    quantity = models.IntegerField(
+        verbose_name='Quantity'
+    )
+    unit_of_measurement = models.ForeignKey(
+        UnitOfMeasurement,
+        on_delete=models.SET_NULL, null=True
+    )

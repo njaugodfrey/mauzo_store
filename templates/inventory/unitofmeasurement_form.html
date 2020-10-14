@@ -13,7 +13,7 @@ Inventory - Units
                     {% csrf_token %}
                     <ul class="list-group">
                     {% for field in form %}
-                        <li class="list-group-item">{{field}}</li>
+                        <li class="list-group-item">{{field.label_tag}} {{field}}</li>
                     {% endfor %}
                     </ul>
                     <button type="submit" class="btn white-text black card-link">Submit</button>

@@ -37,10 +37,6 @@ urlpatterns = [
         'units-of-measurement/<int:pk>/update',
         views.update_unit, name='unit-update'
     ),
-    path(
-        'units-of-measurement/<int:pk>',
-        views.UnitDelete.as_view(), name='unit-delete'
-    ),
     # Goods receipts
     path(
         'goods-receipt/create-new/',
