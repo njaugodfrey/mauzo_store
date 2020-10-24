@@ -506,6 +506,7 @@ def remove_returns_items(request, pk, slug, item_pk):
         )
 
 
+# writeons
 @login_required
 @allowed_user(['Accounts'])
 def create_write_on(request):
@@ -528,19 +529,33 @@ def create_write_on(request):
     )
     new_write_on.save()
     return redirect(
-        '', slug=new_write_on.slug, pk=new_write_on.pk
+        'inventory:writeon-detail',
+        slug=new_write_on.slug, pk=new_write_on.pk
+    )
+
+
+@login_required
+def write_on_list(request):
+    context = {
+        'writeons': StockWriteOn.objects.order_by('write_on_date').all()
+    }
+    return render(
+        request, template_name='inventory/write_on_list.html',
+        context=context
     )
 
 
 @login_required
 @allowed_user(['Accounts'])
-def write_on_details(request, pk, slug):
+def write_on_detail(request, pk, slug):
     form = WriteOnForm(request.POST or None)
     writeon = get_object_or_404(StockWriteOn, pk=pk)
+    items = GoodsWrittenOn.objects.filter(document_ref=writeon.id).select_related()
 
     context = {
         'form': form,
-        'writeon': writeon
+        'writeon': writeon,
+        'items': items
     }
     return render(
         request, template_name='inventory/stock_write_on.html',
@@ -590,3 +605,32 @@ def add_write_on_items(request, pk, slug):
             json.dumps({"nothing to see": "action not successful"}),
             content_type="application/json"
         )
+
+@login_required
+@csrf_exempt
+def remove_writeon_item(request, pk, slug, item_pk):
+    if request.method == 'DELETE':
+        item = ReceivedGoods.objects.get(
+            pk=int(QueryDict(request.body).get('item_pk'))
+        )
+        item_stock = item.stock
+        item.delete()
+        stock_obj = Stock.objects.get(pk=item_stock.pk)
+        stock_obj_quantity = stock_obj.quantity
+        stock_obj.quantity = int(stock_obj_quantity) - int(item.quantity)
+        stock_obj.save()
+
+        response_data = {}
+        response_data['msg'] = 'Item removed.'
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+
+    else:
+        return HttpResponse(
+            json.dumps({"nothing to see": "this isn't happening"}),
+            content_type="application/json"
+        )
+

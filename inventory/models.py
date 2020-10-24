@@ -28,23 +28,11 @@ class Stock(models.Model):
     stock_supplier = models.ManyToManyField(
         Supplier, blank=True
     )
-    purchase_price = models.FloatField(
-        verbose_name='Purchase price'
-    )
-    selling_price_1 = models.FloatField(
-        verbose_name='Selling price 1'
-    )
     quantity = models.FloatField(
         verbose_name='Stock in hand', default=0
     )
     stock_vat_code = models.ForeignKey(
         vat, on_delete=models.PROTECT
-    )
-    sales_discount = models.IntegerField(
-        null=True, blank=True
-    )
-    is_promotional = models.BooleanField(
-        default=False
     )
     slug = models.SlugField(
         default=''

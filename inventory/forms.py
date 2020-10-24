@@ -6,8 +6,7 @@ class StockCreateForm(forms.ModelForm):
     class Meta:
         model = models.Stock
         fields = [
-            'stock_name', 'stock_supplier', 'purchase_price',
-            'selling_price_1', 'quantity',
+            'stock_name', 'stock_supplier', 'quantity',
             'stock_vat_code', 'unit_quantity'
         ]
 
@@ -99,7 +98,7 @@ class WriteOnForm(forms.ModelForm):
     class Meta:
         model = models.ReceivedGoods
         fields = [
-            'stock', 'quantity', 'unit_of_measurement', 'price'
+            'stock', 'quantity', 'unit_of_measurement'
         ]
         widgets = {
             'quantity': forms.NumberInput(attrs={

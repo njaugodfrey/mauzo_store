@@ -1,14 +1,10 @@
-import random
-
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
-from django.views import generic
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from mauzo.decorators import allowed_user
 from .models import Customer
 from .forms import CustomerForm
+from sales.models import SalesReceipt
 
 
 # Create your views here.
@@ -17,8 +13,9 @@ from .forms import CustomerForm
 @login_required
 @allowed_user(['Accounts'])
 def customers_list(request):
-    context = {}
-    context['all_customers'] = Customer.objects.order_by('customer_code').all()
+    context = {
+        'all_customers': Customer.objects.order_by('customer_code').all()
+    }
     return render(
         request, template_name='customer/customers_list.html',
         context=context
@@ -29,8 +26,12 @@ def customers_list(request):
 @allowed_user(['Accounts'])
 def customer_detail(request, pk, slug):
     customer = Customer.objects.get(customer_code=pk)
+    invoices = SalesReceipt.objects.filter(
+        debtors_account=customer.customer_code
+    ).select_related()
     context = {
-        'customer': customer
+        'customer': customer,
+        'invoices': invoices
     }
     return render(
         request, template_name='customer/customer_detail.html',
@@ -94,8 +95,3 @@ def update_supplier(request, pk, slug):
         request, template_name='customer/create_customer.html',
         context=context
     )
-
-
-class CustomerDelete(DeleteView):
-    model = Customer
-    success_url = reverse_lazy('customer_list')

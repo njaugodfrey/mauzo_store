@@ -106,19 +106,11 @@ $(document).ready(function () {
         add_receipt_items();
     });
 
-    let someUrl = $('#print-api').data('url');
+    /*let someUrl = $('#print-api').data('url');
     console.log(someUrl)
     fetch(someUrl)
     .then(res => res.json())
     .then((out) => {
         console.log('Output: ', out);
-    }).catch(err => console.error(err));
-
-    /* $('#print-api').click(function () {
-        printjs({
-            printable: $('#print-api').data('url'),
-            properties: ['name', 'email', 'phone'],
-            type: 'json'
-        });
-    }); */
+    }).catch(err => console.error(err));*/
 })

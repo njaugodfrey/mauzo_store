@@ -19,4 +19,10 @@ Customers - {{customer.customer_name}}
         <a href="{% url 'sales:new_invoice' customer.pk %}" class="card-link">New invoice</a>
     </div>
 </div>
+
+<div class="invoices">
+    {% for invoice in invoices %}
+    {{invoice.receipt_number}}
+    {% endfor %}
+</div>
 {% endblock customer %}

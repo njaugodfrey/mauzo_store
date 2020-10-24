@@ -33,22 +33,34 @@ def receipts_list(request):
     )
 
 
+@login_required
+@allowed_user(['Accounts'])
 def filter_receipts(request):
     if 'q' in request.GET:
         query = request.GET['q']
-        date_obj = datetime.strptime(query, '%d-%m-%Y')
 
         receipts = SalesReceipt.objects.filter(
-            sale_date__icontains=query
-        )
+            receipt_number__icontains=query
+        ).order_by('sale_date')
+
+        with open("sales_report.txt", "w") as rcpt:
+            response = HttpResponse()
+            response['content_type'] = 'text/plain'
+            response['Content-Disposition'] = 'attachment; filename=sales_report.txt'
+            response.write('\t Gathee Wholesalers Ltd \n')
+            response.write('Sales report for ' + query + '\n')
+            response.write('Time \t\tNumber \t\tAmount \n')
+            for receipt in receipts:
+                response.write(
+                    str(receipt.sale_date.strftime("%H:%M:%S")) + '\t' + \
+                    receipt.receipt_number + '\t' + \
+                    str(receipt.total) + '\n'
+                )
 
         context = {
             'receipts': receipts
         }
-        return render(
-            request, template_name='sales/filtered_receipts.html',
-            context=context
-        )
+        return response
 
 
 def print_sales(request):
@@ -119,7 +131,7 @@ def create_sales_invoice(request, pk):
     last_receipt = SalesReceipt.objects.all().order_by('receipt_number').last()
     if not last_receipt:
         receipt_number = 'SI' + str(datetime.today().month).zfill(2) + \
-                             str(datetime.today().day).zfill(2) + '001'
+                         str(datetime.today().day).zfill(2) + '001'
     else:
         receipt_number = last_receipt.receipt_number
         receipt_int = int(receipt_number[7:11])
@@ -286,6 +298,8 @@ def print_sales_receipt(request, pk):
     company = Company.objects.get(pk=1)
     receipt = SalesReceipt.objects.get(pk=pk)
     items = SoldGoods.objects.filter(receipt_ref=pk).select_related()
+    user = request.user
+    print_time = datetime.now()
 
     with open("receipt.txt", "w") as rcpt:
         response = HttpResponse()
@@ -300,7 +314,8 @@ def print_sales_receipt(request, pk):
         )
         response.writelines([
             receipt.receipt_number + '\n',
-            str(receipt.sale_date.strftime("%d/%m/%Y, %H:%M:%S")) + '\n'
+            'Created: ' + str(receipt.sale_date.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
+            'Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
         ])
         response.write('-----------------------------------------\n')
         response.writelines([

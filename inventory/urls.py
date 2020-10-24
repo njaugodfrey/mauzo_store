@@ -83,4 +83,21 @@ urlpatterns = [
         'goods-returns/<str:slug>-<int:pk>/delete-item/<int:item_pk>/',
         views.remove_returns_items, name='delete-item'
     ),
+    # Writeon
+    path(
+        'write-on/new/', views.create_write_on,
+        name='new-writeon'
+    ),
+    path(
+        'write-on/writeon-list/', views.write_on_list,
+        name='writeon-list'
+    ),
+    path(
+        'write-on/<slug>-<pk>/detail/', views.write_on_detail,
+        name='writeon-detail'
+    ),
+    path(
+        'write-on/<str:slug>-<int:pk>/add-items/',
+        views.add_write_on_items, name='writeon-item'
+    ),
 ]
