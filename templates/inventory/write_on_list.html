@@ -13,5 +13,49 @@ Stocks Writeon list
             </div>
       </div>
     {% endfor %}
+    <table class="table mt-2">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Receipt #</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Time</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for writeon in all_writeons %}
+                <tr>
+                    <th scope="row">
+                        <a class="" href="{% url 'sales:view_writeon' writeon.slug writeon.id %}">
+                            {{writeon.writeon_number}}
+                        </a>
+                    </th>
+                    <td>
+                        {{writeon.salesman}}
+                    </td>
+                    <td>
+                        {{writeon.total}}
+                    </td>
+                    <td>
+                        {{writeon.sale_date}}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <a class="mr-3" href="{% url 'sales:sales_returns' writeon.slug writeon.id%}">
+                                <button type="button" class="btn btn-primary">
+                                        Void
+                                </button>
+                            </a>
+                            <a href="{% url 'sales:update_writeon' writeon.slug writeon.id%}">
+                                <button type="button" class="btn btn-primary">
+                                        Update
+                                </button>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock inventory%}

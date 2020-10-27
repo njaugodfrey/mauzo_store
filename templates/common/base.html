@@ -11,8 +11,8 @@
         {% block title %}
         {% endblock title %}
     </title>
-    <link rel="stylesheet" href="{% static 'printjs/print.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap-4.5.2-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
     {% block style %}
     {% endblock style %}
 
@@ -34,6 +34,8 @@
 
     <script type="text/javascript" src="{% static 'scripts/jquery-3.5.1.js' %}"></script>
     <script type="text/javascript" src="{% static 'bootstrap-4.5.2-dist/js/bootstrap.min.js' %}"></script>
+    <script type='text/javascript' src="{% static 'scripts/select2.full.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/functionality.js' %}"></script>
     {% block javascript %}
     {% endblock javascript %}
 

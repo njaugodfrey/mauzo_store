@@ -5,3 +5,4 @@ markdown
 drf-writable-nested
 django-widget-tweaks
 django-filter
+psycopg2

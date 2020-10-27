@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    $("#item-name").select2();
+
     $("#item-name").change(function () {
         console.log('working')
         var url = $("#receipt-form").data('units-url');

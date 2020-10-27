@@ -72,4 +72,7 @@ Sales - {{receipt.receipt_number}}
 
 {% block javascript %}
     <script type="text/javascript" src="{% static 'scripts/salesrcpt.js' %}"></script>
+    <script type="text/javascript">
+        $("#item-name").select2();
+    </script>
 {% endblock javascript %}

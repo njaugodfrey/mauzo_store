@@ -7,6 +7,16 @@
         <a class="nav-item nav-link" href="{% url 'inventory:goods-receipts-list' %}">Goods receipts list</a>
         <a class="nav-item nav-link" href="{% url 'inventory:new-goods-returns' %}">Return goods</a>
         <a class="nav-item nav-link" href="{% url 'inventory:goods-returns-list' %}">Goods returns list</a>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Dropdown button
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+        </div>
     </nav>
 {% endblock nav %}
 
