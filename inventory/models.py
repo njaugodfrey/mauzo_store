@@ -169,7 +169,7 @@ class ReceivedGoods(models.Model):
 
 class ReturnedGoods(models.Model):
     document_ref = models.ForeignKey(
-        GoodsReceipt, on_delete=models.PROTECT
+        GoodsReturned, on_delete=models.PROTECT
     )
     stock = models.ForeignKey(
         Stock, on_delete=models.PROTECT
@@ -200,7 +200,7 @@ class StockWriteOn(models.Model):
         User, on_delete=models.CASCADE,
         verbose_name='Input by'
     )
-    slug = models.SlugField
+    slug = models.SlugField(default='')
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.write_on_number)

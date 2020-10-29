@@ -97,7 +97,7 @@ urlpatterns = [
         name='writeon-detail'
     ),
     path(
-        'write-on/<str:slug>-<int:pk>/add-items/',
+        'write-on/<slug>-<pk>/add-items/',
         views.add_write_on_items, name='writeon-item'
     ),
 ]

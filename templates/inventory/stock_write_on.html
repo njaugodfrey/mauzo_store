@@ -4,7 +4,7 @@
 {% block inventory %}
 <div class="container">
     <div class="container-fluid">
-        <form id="receipt-form" data-units-url="{% url 'inventory:uom-list' %}">
+        <form id="write-on-form" data-units-url="{% url 'inventory:uom-list' %}">
             <div class="row">
                 {% csrf_token %}
                 {% for field in form %}
@@ -26,7 +26,7 @@
             <th>Quantity</th>
             <th>Actions</th>
         </thead>
-        <tbody id="receipt-items">
+        <tbody id="write-on-items">
             {% for item in items %}
                 <tr>
                     <td>{{item.stock.stock_name}}</td>
@@ -47,5 +47,8 @@
 {% endblock inventory %}
 
 {% block javascript %}
-<script type="text/javascript" src="{% static 'scripts/grn.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/writeon.js' %}"></script>
+    <script type="text/javascript">
+        $("#item-name").select2();
+    </script>
 {% endblock javascript %}

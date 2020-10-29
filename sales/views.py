@@ -63,10 +63,6 @@ def filter_receipts(request):
         return response
 
 
-def print_sales(request):
-    sales = SalesReceipt.objects.all
-
-
 @login_required
 def create_sales_receipt(request):
     form = SalesReceiptForm(request.POST or None)
@@ -271,7 +267,7 @@ def remove_receipt_items(request):
         item.delete()
         product_obj = Stock.objects.get(pk=item_product.pk)
         product_obj_quantity = product_obj.quantity
-        product_obj.quantity = int(product_obj_quantity) - int(item.quantity)
+        product_obj.quantity = int(product_obj_quantity) + int(item.quantity)
         product_obj.save()
 
         # update receipt total
@@ -313,10 +309,12 @@ def print_sales_receipt(request, pk):
              company.kra_vat + '\n'],
         )
         response.writelines([
-            receipt.receipt_number + '\n',
+            'Number: ' + receipt.receipt_number + '\n',
             'Created: ' + str(receipt.sale_date.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
             'Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
         ])
+        response.write('-----------------------------------------\n')
+        response.write('-------------- Tax Receipt --------------\n')
         response.write('-----------------------------------------\n')
         response.writelines([
             'Code\t', 'Qty\t', 'Price\t', 'Tax\t', 'Amount\n'
@@ -445,10 +443,12 @@ def print_sales_returns(request, pk):
              company.kra_vat + '\n'],
         )
         response.writelines([
-            receipt.receipt_number + '\n',
+            'Receipt: ' + receipt.receipt_number + '\n',
             str(receipt.sale_date) + '\n'
         ])
-        response.write('--------------------------------\n')
+        response.write('-----------------------------------------\n')
+        response.write('-------------- Tax Receipt --------------\n')
+        response.write('-----------------------------------------\n')
         response.writelines([
             'Code\t', 'Description\t', 'Qty\t', 'Price\t', 'Tax\t', 'Amount\n'
         ])

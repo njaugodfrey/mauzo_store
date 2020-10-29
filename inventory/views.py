@@ -234,10 +234,12 @@ def goods_receipt_details(request, pk, slug):
     receipt = get_object_or_404(
         GoodsReceipt, pk=pk
     )
+    items = ReceivedGoods.objects.filter(document_ref=receipt.id).select_related()
 
     context = {
         'form': form,
-        'receipt': receipt
+        'receipt': receipt,
+        'items': items
     }
     return render(
         request, template_name='inventory/goods_receipt_detail.html',
@@ -442,7 +444,7 @@ def add_returns_items(request, pk, slug):
 
         # process the form
         return_item = ReturnedGoods(
-            document_ref=GoodsReceipt.objects.get(id=pk),
+            document_ref=GoodsReturned.objects.get(id=pk),
             stock=Stock.objects.get(pk=item),
             quantity=quantity,
             price=price,
@@ -535,6 +537,7 @@ def create_write_on(request):
 
 
 @login_required
+@allowed_user(['Accounts'])
 def write_on_list(request):
     context = {
         'writeons': StockWriteOn.objects.order_by('write_on_date').all()
@@ -607,13 +610,13 @@ def add_write_on_items(request, pk, slug):
         )
 
 @login_required
-@csrf_exempt
+@allowed_user(['Accounts'])
 def remove_writeon_item(request, pk, slug, item_pk):
     if request.method == 'DELETE':
-        item = ReceivedGoods.objects.get(
+        item = GoodsWrittenOn.objects.get(
             pk=int(QueryDict(request.body).get('item_pk'))
         )
-        item_stock = item.stock
+        item_product = item.product
         item.delete()
         stock_obj = Stock.objects.get(pk=item_stock.pk)
         stock_obj_quantity = stock_obj.quantity

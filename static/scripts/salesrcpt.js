@@ -130,7 +130,6 @@ $(document).ready(function () {
 
     $('#receipt-form').on('submit', function(event){
         event.preventDefault();
-        //document.getElementById("receipt-form").reset();
         console.log("form submitted!")  // sanity check
         add_receipt_items();
     });
