@@ -25,7 +25,7 @@ SECRET_KEY = '%gr1$%@$l8qm$ve%fh3jkmd1kypa7l@s(lo&f72)_1th4lk1ud'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.10', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'widget_tweaks',
     'rest_framework',
-    'easy_select2',
     'inventory',
     'supplier',
     'sales',
@@ -103,18 +102,6 @@ DATABASES = {
         'PORT': '5432'
     }
 }
-
-# mysql configuration for production
-""" DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': '/etc/mysql/my.cnf',
-        },
-    }
-} """
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
