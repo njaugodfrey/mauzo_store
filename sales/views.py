@@ -1,4 +1,5 @@
-import json, csv
+import json, csv, math
+from win32printing import Printer
 
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, redirect, get_object_or_404
@@ -290,7 +291,7 @@ def remove_receipt_items(request):
 
 
 @login_required
-def print_sales_receipt(request, pk):
+def print_decoy(request, pk):
     company = Company.objects.get(pk=1)
     receipt = SalesReceipt.objects.get(pk=pk)
     items = SoldGoods.objects.filter(receipt_ref=pk).select_related()
@@ -354,6 +355,68 @@ def print_sales_receipt(request, pk):
         response.write('Salesman: ' + str(receipt.salesman).upper() + '\n')
 
     return response
+
+
+def print_sales_receipt(request, pk):
+    company = Company.objects.get(pk=1)
+    receipt = SalesReceipt.objects.get(pk=pk)
+    items = SoldGoods.objects.filter(receipt_ref=pk).select_related()
+    print_time = datetime.now()
+
+    font = {
+        "height": 11,
+    }
+
+    with Printer(linegap=1) as printer:
+        printer.text(company.company_name, font_config=font)
+        printer.text(company.telephone_1, font_config=font)
+        printer.text(company.telephone_2, font_config=font)
+        printer.text(company.kra_pin, font_config=font)
+        printer.text(company.kra_vat, font_config=font)
+        
+        printer.text('Number: ' + receipt.receipt_number, font_config=font)
+        printer.text('Created: ' + str(receipt.sale_date.strftime("%d-%m-%Y, %H:%M:%S")), font_config=font)
+        printer.text('Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")), font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('---------- Tax Receipt ------------', font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+
+        
+        printer.text('Code       Qty     Price         Tax         Amount', font_config=font)
+        for item in items:
+            printer.text(
+                item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name,
+                font_config=font
+            )
+            printer.text(
+                item.product.stock_code + '       ' + \
+                str(math.trunc(item.quantity)) + '          ' + \
+                str(item.price) + '         ' + \
+                str(item.product.stock_vat_code.vat_code) + '           ' + \
+                str(item.amount),
+                font_config=font
+            )
+        
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('Total:        ' + str(receipt.total), font_config=font)
+        printer.text('Tax:          ' + str(receipt.total), font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('You were served by: ' + str(receipt.salesman).title(), font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('Prices inclusive of VAT where applicable', font_config=font)
+
+        printer.new_page()
+        
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('-------------- Copy ---------------', font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('Receipt No:' + receipt.receipt_number, font_config=font)
+        printer.text('Sale date: ' + str(receipt.sale_date.strftime("%d/%m/%Y")), font_config=font)
+        printer.text('Salesman: ' + str(receipt.salesman).title(), font_config=font)
+
+    return redirect(
+            'sales:view_receipt', slug=receipt.slug, pk=receipt.id
+        )
 
 
 # void a sale
@@ -430,36 +493,56 @@ def print_sales_returns(request, pk):
     company = get_object_or_404(Company, pk=1)
     receipt = get_object_or_404(SalesReceipt, pk=pk)
     items = SalesReceiptVoid.objects.filter(receipt_ref=pk).select_related()
+    print_time = datetime.now()
 
-    with open("void_receipt.txt", "w") as rcpt:
-        response = HttpResponse()
-        response['content_type'] = 'text/plain'
-        response['Content-Disposition'] = 'attachment; filename=void_receipt.txt'
-        response.writelines(
-            [company.company_name + '\n',
-             company.telephone_1 + '\n',
-             company.telephone_2 + '\n',
-             company.kra_pin + '\n',
-             company.kra_vat + '\n'],
-        )
-        response.writelines([
-            'Receipt: ' + receipt.receipt_number + '\n',
-            str(receipt.sale_date) + '\n'
-        ])
-        response.write('-----------------------------------------\n')
-        response.write('-------------- Tax Receipt --------------\n')
-        response.write('-----------------------------------------\n')
-        response.writelines([
-            'Code\t', 'Description\t', 'Qty\t', 'Price\t', 'Tax\t', 'Amount\n'
-        ])
+    font = {"height": 11,}
+
+    with Printer(linegap=1) as printer:
+        printer.text(company.company_name, font_config=font)
+        printer.text(company.telephone_1, font_config=font)
+        printer.text(company.telephone_2, font_config=font)
+        printer.text(company.kra_pin, font_config=font)
+        printer.text(company.kra_vat, font_config=font)
+        
+        printer.text('Number: ' + receipt.receipt_number, font_config=font)
+        printer.text('Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")), font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('-------- Tax Receipt - Void -------', font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+
+        
+        printer.text('Code       Qty     Price         Tax         Amount', font_config=font)
         for item in items:
-            response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
-            response.writelines([
-                item.product.stock_code + '\t\t',
-                str(item.quantity) + '\t\t',
-                str(item.price) + '\t',
-                str(item.product.stock_vat_code.vat_code) + '\t',
-                str(item.amount) + '\n'
-            ])
+            printer.text(
+                item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name,
+                font_config=font
+            )
+            printer.text(
+                item.product.stock_code + '       ' + \
+                str(math.trunc(item.quantity)) + '          ' + \
+                str(item.price) + '         ' + \
+                str(item.product.stock_vat_code.vat_code) + '           ' + \
+                str(item.amount),
+                font_config=font
+            )
+        
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('Total:        ' + str(receipt.total), font_config=font)
+        printer.text('Tax:          ' + str(receipt.total), font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('You were served by: ' + str(receipt.salesman).title(), font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('Prices inclusive of VAT where applicable', font_config=font)
 
-    return response
+        printer.new_page()
+        
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('-------------- Copy ---------------', font_config=font)
+        printer.text('-----------------------------------', font_config=font)
+        printer.text('Receipt No:' + receipt.receipt_number, font_config=font)
+        printer.text('Sale date: ' + str(receipt.sale_date.strftime("%d/%m/%Y")), font_config=font)
+        printer.text('Salesman: ' + str(receipt.salesman).title(), font_config=font)
+    
+    return redirect(
+            'sales:sales_returns', slug=receipt.slug, pk=receipt.id
+        )

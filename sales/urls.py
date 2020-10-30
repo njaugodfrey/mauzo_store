@@ -58,4 +58,8 @@ urlpatterns = [
         'returns/print/return/<int:pk>/',
         views.print_sales_returns, name='print-return'
     ),
+    path(
+        'receipts/print/decoy/<int:pk>/', views.print_decoy,
+        name='print-decoy'
+    ),
 ]
