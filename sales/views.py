@@ -304,9 +304,9 @@ def print_decoy(request, pk):
         response['Content-Disposition'] = 'attachment; filename=receipt.txt'
         response.writelines(
             [company.company_name + '\n',
-             company.telephone_1 + '\n',
+             company.telephone_1 + '        ',
              company.telephone_2 + '\n',
-             company.kra_pin + '\n',
+             company.kra_pin + '        ',
              company.kra_vat + '\n'],
         )
         response.writelines([
@@ -318,34 +318,28 @@ def print_decoy(request, pk):
         response.write('-------------- Tax Receipt --------------\n')
         response.write('-----------------------------------------\n')
         response.writelines([
-            'Code\t', 'Qty\t', 'Price\t', 'Tax\t', 'Amount\n'
+            'Code       Qty     Price         Tax         Amount'
         ])
         for item in items:
             response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
             response.writelines([
-                item.product.stock_code + '\t',
-                str(item.quantity) + '\t',
-                str(item.price) + '\t',
-                str(item.product.stock_vat_code.vat_code) + '\t',
+                item.product.stock_code + '       ',
+                str(item.quantity) + '       ',
+                str(item.price) + '       ',
+                str(item.product.stock_vat_code.vat_code) + '       ',
                 str(item.amount) + '\n'
             ])
         response.write('-----------------------------------------\n')
-        response.write('Total\t\t\t\t' + str(receipt.total) + '\n')
+        response.write('Total:        ' + str(receipt.total) + '\n')
+        response.write('Tax:          ' + str(receipt.total) + '\n')
         response.write('-----------------------------------------\n')
-        tax_items = items.values('product__stock_vat_code__vat_code').annotate(Sum('vat'))
-        for result in tax_items:
-            result
-            '''for key in result:
-                response.write(result[key])'''
-
-        response.write('-----------------------------------------\n')
-        response.write('You were served by: ' + str(receipt.salesman).upper() + '\n')
-        response.write('-----------------------------------------\n')
+        
+        response.write('You were served by: ' + str(receipt.salesman).upper() + '\n\n')
         response.write('Prices inclusive of VAT where applicable')
         response.writelines('\n')
         # Duplicate
         response.write('-----------------------------------------\n')
-        response.write('\t\t Copy \n')
+        response.write('-------------- Copy ---------------')
         response.write('-----------------------------------------\n')
         response.write('Receipt No:' + receipt.receipt_number + '\n')
         response.write(
