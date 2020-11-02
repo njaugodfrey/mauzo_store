@@ -83,7 +83,6 @@ def create_sales_receipt(request):
             obj.receipt_number = new_receipt_number
 
         obj.sale_date = datetime.today()
-        # if obj.debtors_account: obj.is_credit = True
         obj.salesman = request.user
         obj.save()
         return redirect(
@@ -291,10 +290,11 @@ def remove_receipt_items(request):
 
 
 @login_required
-def print_decoy(request, pk):
+def print_sales_receipt(request, pk):
     company = Company.objects.get(pk=1)
     receipt = SalesReceipt.objects.get(pk=pk)
     items = SoldGoods.objects.filter(receipt_ref=pk).select_related()
+    tax = SoldGoods.objects.filter(receipt_ref=pk).select_related().aggregate(Sum('vat'))
     user = request.user
     print_time = datetime.now()
 
@@ -331,15 +331,16 @@ def print_decoy(request, pk):
             ])
         response.write('-----------------------------------------\n')
         response.write('Total:        ' + str(receipt.total) + '\n')
-        response.write('Tax:          ' + str(receipt.total) + '\n')
+        #for vat in tax:
+        response.write('Tax:          ' + str(tax.get('vat__sum')) + '\n')
         response.write('-----------------------------------------\n')
         
         response.write('You were served by: ' + str(receipt.salesman).upper() + '\n\n')
-        response.write('Prices inclusive of VAT where applicable')
-        response.writelines('\n')
+        response.write('Prices inclusive of VAT where applicable\n\n')
+
         # Duplicate
         response.write('-----------------------------------------\n')
-        response.write('-------------- Copy ---------------')
+        response.write('----------------- Copy ------------------\n')
         response.write('-----------------------------------------\n')
         response.write('Receipt No:' + receipt.receipt_number + '\n')
         response.write(
@@ -351,7 +352,7 @@ def print_decoy(request, pk):
     return response
 
 
-def print_sales_receipt(request, pk):
+def print_decoy_receipt(request, pk):
     company = Company.objects.get(pk=1)
     receipt = SalesReceipt.objects.get(pk=pk)
     items = SoldGoods.objects.filter(receipt_ref=pk).select_related()

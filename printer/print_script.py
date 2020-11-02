@@ -1,5 +1,4 @@
-import os, fnmatch, time
-import win32print
+import os, fnmatch, time, win32print
 from win32printing import Printer
 
 while 1:
@@ -14,7 +13,7 @@ while 1:
                         print('true')
                         font = {'height': 11}
                         printer.text(line, font_config=font)
-                    win32print.EndPage
+                    win32print.EndPage()
             with open(file, 'r') as receipt:
                 with Printer(linegap=1) as printer:
                     for line in receipt:
@@ -23,7 +22,6 @@ while 1:
                                 print('true')
                                 font = {'height': 11}
                                 printer.text(line, font_config=font)
-                    win32print.EndPage
+                    win32print.EndPage()
             time.sleep(1.0)
             os.unlink(r'c:\Users\User\Downloads\\' + file)
-    #time.sleep(5.0)            
