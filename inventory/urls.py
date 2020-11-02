@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import stocktake
 
 app_name = 'inventory'
 
@@ -85,19 +86,40 @@ urlpatterns = [
     ),
     # Writeon
     path(
-        'write-on/new/', views.create_write_on,
+        'write-on/new/', stocktake.create_write_on,
         name='new-writeon'
     ),
     path(
-        'write-on/writeon-list/', views.write_on_list,
+        'write-on/writeon-list/', stocktake.write_on_list,
         name='writeon-list'
     ),
     path(
-        'write-on/<slug>-<pk>/detail/', views.write_on_detail,
+        'write-on/<slug>-<pk>/detail/', stocktake.write_on_detail,
         name='writeon-detail'
     ),
     path(
         'write-on/<slug>-<pk>/add-items/',
-        views.add_write_on_items, name='writeon-item'
+        stocktake.add_write_on_items, name='writeon-item'
+    ),
+    path(
+        'goods-returns/<str:slug>-<int:pk>/delete-item/<int:item_pk>/',
+        stocktake.remove_writeon_item, name='remove-writeon-item'
+    ),
+    # write off
+    path(
+        'write-off/new/', stocktake.create_write_off,
+        name='new-writeoff'
+    ),
+    path(
+        'write-off/writeoff-list/', stocktake.write_off_list,
+        name='writeoff-list'
+    ),
+    path(
+        'write-off/<slug>-<pk>/detail/', stocktake.write_off_detail,
+        name='writeoff-detail'
+    ),
+    path(
+        'write-off/<slug>-<pk>/add-items/',
+        stocktake.add_write_off_item, name='writeon-item'
     ),
 ]

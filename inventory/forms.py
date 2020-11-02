@@ -96,7 +96,34 @@ class ReturnedGoodsForm(forms.ModelForm):
 
 class WriteOnForm(forms.ModelForm):
     class Meta:
-        model = models.ReceivedGoods
+        model = models.GoodsWrittenOn
+        fields = [
+            'stock', 'quantity', 'unit_of_measurement'
+        ]
+        widgets = {
+            'quantity': forms.NumberInput(attrs={
+                'id': 'item-quantity',
+                'required': True,
+                'placeholder': 'Quantity...'
+            }),
+            'stock': forms.Select(attrs={
+                'id': 'item-name',
+                'required': True
+            }),
+            'unit_of_measurement': forms.Select(attrs={
+                'id': 'uom',
+                'required': True
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['unit_of_measurement'].queryset = models.UnitOfMeasurement.objects.none()
+
+
+class WriteOffForm(forms.ModelForm):
+    class Meta:
+        model = models.GoodsWrittenOff
         fields = [
             'stock', 'quantity', 'unit_of_measurement'
         ]

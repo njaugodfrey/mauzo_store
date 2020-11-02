@@ -228,7 +228,7 @@ class GoodsWrittenOn(models.Model):
 
 
 class StockWriteOff(models.Model):
-    write_on_date = models.DateField(
+    write_off_date = models.DateField(
         auto_now_add=True, verbose_name='Date'
     )
     write_off_number = models.CharField(

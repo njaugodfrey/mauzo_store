@@ -78,7 +78,7 @@ $(document).ready(function(){
         if (confirm('are you sure you want to remove this item?')==true) {
             console.log($(".item-remove").data('url'));
             $.ajax({
-                url : $("#receipt-items").data('url'),
+                url : $(".item-remove").data('url'),
                 headers: {'X-CSRFToken': csrftoken},// manually send csrftoken
                 type : "DELETE",
                 // data sent with the delete request
