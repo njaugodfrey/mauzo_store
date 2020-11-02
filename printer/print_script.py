@@ -5,7 +5,7 @@ while 1:
     for file in os.listdir(r'c:\Users\User\Downloads'):
         if fnmatch.fnmatch(file, '*.txt'):
             print(file)
-            with open(file, 'r') as receipt:
+            with open(r'c:\Users\User\Downloads\\' + file, 'r') as receipt:
                 with Printer(linegap=1) as printer:
                     for line in receipt:
                         if 'Copy' in line:
@@ -13,8 +13,8 @@ while 1:
                         print('true')
                         font = {'height': 11}
                         printer.text(line, font_config=font)
-                    win32print.EndPage()
-            with open(file, 'r') as receipt:
+                    win32print.EndPage
+            with open(r'c:\Users\User\Downloads\\' + file, 'r') as receipt:
                 with Printer(linegap=1) as printer:
                     for line in receipt:
                         if 'Copy' in line:
@@ -22,6 +22,6 @@ while 1:
                                 print('true')
                                 font = {'height': 11}
                                 printer.text(line, font_config=font)
-                    win32print.EndPage()
-            time.sleep(1.0)
+                    win32print.EndPage
+            time.sleep(5.0)
             os.unlink(r'c:\Users\User\Downloads\\' + file)

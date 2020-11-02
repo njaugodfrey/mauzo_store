@@ -304,50 +304,54 @@ def print_sales_receipt(request, pk):
         response['Content-Disposition'] = 'attachment; filename=receipt.txt'
         response.writelines(
             [company.company_name + '\n',
+             company.postal_address + '        \n',
              company.telephone_1 + '        ',
              company.telephone_2 + '\n',
-             company.kra_pin + '        ',
-             company.kra_vat + '\n'],
+             'PIN: ' + company.kra_pin + '        ',
+             'VAT: ' + company.kra_vat + '\n'],
         )
         response.writelines([
             'Number: ' + receipt.receipt_number + '\n',
             'Created: ' + str(receipt.sale_date.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
             'Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
         ])
+        if receipt.walkin_customer:
+            response.write('Customer: ' + receipt.walkin_customer + '\n')
         response.write('-----------------------------------------\n')
         response.write('-------------- Tax Receipt --------------\n')
         response.write('-----------------------------------------\n')
         response.writelines([
-            'Code       Qty     Price         Tax         Amount'
+            'Code       Qty      Price        Tax         Amount\n'
         ])
         for item in items:
             response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
             response.writelines([
                 item.product.stock_code + '       ',
-                str(item.quantity) + '       ',
-                str(item.price) + '       ',
-                str(item.product.stock_vat_code.vat_code) + '       ',
-                str(item.amount) + '\n'
+                str(item.quantity) + '      ',
+                str(item.price).rjust(5) + '   ',
+                str(item.product.stock_vat_code.vat_code) + '   ',
+                str(item.amount).rjust(10) + '\n'
             ])
         response.write('-----------------------------------------\n')
         response.write('Total:        ' + str(receipt.total) + '\n')
         #for vat in tax:
-        response.write('Tax:          ' + str(tax.get('vat__sum')) + '\n')
+        response.write('Tax:          ' + str(round(tax.get('vat__sum'), 2)) + '\n')
         response.write('-----------------------------------------\n')
         
-        response.write('You were served by: ' + str(receipt.salesman).upper() + '\n\n')
+        response.write('You were served by: ' + str(receipt.salesman).upper() + '\n')
         response.write('Prices inclusive of VAT where applicable\n\n')
 
         # Duplicate
-        response.write('-----------------------------------------\n')
-        response.write('----------------- Copy ------------------\n')
+        response.write('------------ Receipt Copy ---------------\n')
         response.write('-----------------------------------------\n')
         response.write('Receipt No:' + receipt.receipt_number + '\n')
         response.write(
             'Sale date: ' + str(receipt.sale_date.strftime("%d/%m/%Y")) + '\n'
         )
-        response.write('Amount: ' + str(receipt.total))
+        response.write('Amount: ' + str(receipt.total) + '\n')
         response.write('Salesman: ' + str(receipt.salesman).upper() + '\n')
+        if receipt.walkin_customer:
+            response.write('Customer: ' + receipt.walkin_customer + '\n')
 
     return response
 
@@ -488,56 +492,62 @@ def print_sales_returns(request, pk):
     company = get_object_or_404(Company, pk=1)
     receipt = get_object_or_404(SalesReceipt, pk=pk)
     items = SalesReceiptVoid.objects.filter(receipt_ref=pk).select_related()
+    tax = SalesReceiptVoid.objects.filter(receipt_ref=pk).select_related().aggregate(Sum('vat'))
+    void_total = SalesReceiptVoid.objects.filter(receipt_ref=pk).select_related().aggregate(Sum('amount'))
     print_time = datetime.now()
 
-    font = {"height": 11,}
-
-    with Printer(linegap=1) as printer:
-        printer.text(company.company_name, font_config=font)
-        printer.text(company.telephone_1, font_config=font)
-        printer.text(company.telephone_2, font_config=font)
-        printer.text(company.kra_pin, font_config=font)
-        printer.text(company.kra_vat, font_config=font)
-        
-        printer.text('Number: ' + receipt.receipt_number, font_config=font)
-        printer.text('Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")), font_config=font)
-        printer.text('-----------------------------------', font_config=font)
-        printer.text('-------- Tax Receipt - Void -------', font_config=font)
-        printer.text('-----------------------------------', font_config=font)
-
-        
-        printer.text('Code       Qty     Price         Tax         Amount', font_config=font)
-        for item in items:
-            printer.text(
-                item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name,
-                font_config=font
-            )
-            printer.text(
-                item.product.stock_code + '       ' + \
-                str(math.trunc(item.quantity)) + '          ' + \
-                str(item.price) + '         ' + \
-                str(item.product.stock_vat_code.vat_code) + '           ' + \
-                str(item.amount),
-                font_config=font
-            )
-        
-        printer.text('-----------------------------------', font_config=font)
-        printer.text('Total:        ' + str(receipt.total), font_config=font)
-        printer.text('Tax:          ' + str(receipt.total), font_config=font)
-        printer.text('-----------------------------------', font_config=font)
-        printer.text('You were served by: ' + str(receipt.salesman).title(), font_config=font)
-        printer.text('-----------------------------------', font_config=font)
-        printer.text('Prices inclusive of VAT where applicable', font_config=font)
-
-        printer.new_page()
-        
-        printer.text('-----------------------------------', font_config=font)
-        printer.text('-------------- Copy ---------------', font_config=font)
-        printer.text('-----------------------------------', font_config=font)
-        printer.text('Receipt No:' + receipt.receipt_number, font_config=font)
-        printer.text('Sale date: ' + str(receipt.sale_date.strftime("%d/%m/%Y")), font_config=font)
-        printer.text('Salesman: ' + str(receipt.salesman).title(), font_config=font)
-    
-    return redirect(
-            'sales:sales_returns', slug=receipt.slug, pk=receipt.id
+    with open("void_receipt.txt", "w") as rcpt:
+        response = HttpResponse()
+        response['content_type'] = 'text/plain'
+        response['Content-Disposition'] = 'attachment; filename=void_receipt.txt'
+        response.writelines(
+            [company.company_name + '\n',
+             company.postal_address + '        \n',
+             company.telephone_1 + '        ',
+             company.telephone_2 + '\n',
+             'PIN: ' + company.kra_pin + '        ',
+             'VAT: ' + company.kra_vat + '\n'],
         )
+        response.writelines([
+            'Number: ' + receipt.receipt_number + '\n',
+            'Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
+        ])
+        if receipt.walkin_customer:
+            response.write('Customer: ' + receipt.walkin_customer + '\n')
+        response.write('-----------------------------------------\n')
+        response.write('-------------- Tax Receipt --------------\n')
+        response.write('-----------------------------------------\n')
+        response.writelines([
+            'Code       Qty      Price        Tax         Amount\n'
+        ])
+        for item in items:
+            response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
+            response.writelines([
+                item.product.stock_code + '       ',
+                str(item.quantity) + '      ',
+                str(item.price).rjust(5) + '   ',
+                str(item.product.stock_vat_code.vat_code) + '   ',
+                str(item.amount).rjust(10) + '\n'
+            ])
+        response.write('-----------------------------------------\n')
+        response.write('Total:        ' + str(void_total.get('amount__sum')) + '\n')
+        #for vat in tax:
+        response.write('Tax:          ' + str(round(tax.get('vat__sum'), 2)) + '\n')
+        response.write('-----------------------------------------\n')
+        
+        response.write('You were served by: ' + str(receipt.salesman).upper() + '\n')
+        response.write('Prices inclusive of VAT where applicable\n\n')
+
+        # Duplicate
+        response.write('------------ Receipt Copy ---------------\n')
+        response.write('-----------------------------------------\n')
+        response.write('Receipt No:' + receipt.receipt_number + '\n')
+        response.write(
+            'Sale date: ' + str(receipt.sale_date.strftime("%d/%m/%Y")) + '\n'
+        )
+        response.write('Amount: ' + str(receipt.total) + '\n')
+        response.write('Salesman: ' + str(receipt.salesman).upper() + '\n')
+        if receipt.walkin_customer:
+            response.write('Customer: ' + receipt.walkin_customer + '\n')
+    
+    return response
