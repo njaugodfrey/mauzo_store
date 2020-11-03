@@ -1,10 +1,14 @@
 {% extends "inventory/inventorybase.html" %}
 {% load static %}
 
+{% block title %}
+{{receipt.receipt_number}}
+{% endblock title %}
+
 {% block inventory %}
 <div class="container">
     <div class="container-fluid">
-        <form id="receipt-form" data-units-url="{% url 'inventory:uom-list' %}">
+        <form id="document-form" data-units-url="{% url 'inventory:uom-list' %}">
             <div class="row">
                 {% csrf_token %}
                 {% for field in form %}
@@ -18,7 +22,10 @@
             </div>
         </form>
     </div>
-    {{unit.unit_name}}
+
+    <div class="alert alert-success text-center mt-4 mb-4" role="alert" id="receipt-total">
+        Total: {{receipt.total}}
+    </div>
 
     <table class="table table-bordered">
         <thead>
@@ -28,7 +35,7 @@
             <th>Amount</th>
             <th>Actions</th>
         </thead>
-        <tbody id="receipt-items">
+        <tbody id="document-items">
             {% for item in items %}
                 <tr>
                     <td>{{item.stock.stock_name}}</td>
@@ -51,5 +58,8 @@
 {% endblock inventory %}
 
 {% block javascript %}
-<script type="text/javascript" src="{% static 'scripts/grn.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/grn.js' %}"></script>
+    <script type="text/javascript">
+        $("#item-name").select2();
+    </script>
 {% endblock javascript %}

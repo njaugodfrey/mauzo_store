@@ -94,7 +94,7 @@ class GoodsReceipt(models.Model):
     )
     supplier = models.ForeignKey(
         Supplier, on_delete=models.CASCADE,
-        null=True
+        null=True, blank=True
     )
     input_by = models.ForeignKey(
         User, on_delete=models.CASCADE,
@@ -125,7 +125,7 @@ class GoodsReturned(models.Model):
     )
     supplier = models.ForeignKey(
         Supplier, on_delete=models.CASCADE,
-        null=True
+        null=True, blank=True
     )
     input_by = models.ForeignKey(
         User, on_delete=models.CASCADE,

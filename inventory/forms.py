@@ -24,12 +24,24 @@ class GoodsReceiptForm(forms.ModelForm):
     class Meta:
         model = models.GoodsReceipt
         fields = ['supplier']
+        widgets = {
+            'supplier': forms.Select(attrs={
+                'required': False,
+                'id': 'grn-supplier'
+            })
+        }
 
 
 class GoodsReturnsForm(forms.ModelForm):
     class Meta:
         model = models.GoodsReturned
         fields = ['supplier']
+        widgets = {
+            'supplier': forms.Select(attrs={
+                'required': False,
+                'id': 'grn-supplier'
+            }),
+        }
 
 
 class ReceivedGoodsForm(forms.ModelForm):

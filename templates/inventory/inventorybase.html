@@ -3,12 +3,10 @@
 {% block nav %}
     <nav class="nav nav-pills nav-justified mb-4">
         <a class="nav-item nav-link" href="{% url 'inventory:create_item' %}">New Item</a>
-        <a class="nav-item nav-link" href="{% url 'inventory:new-goods-receipt' %}">Receive goods</a>
-        <a class="nav-item nav-link" href="{% url 'inventory:goods-receipts-list' %}">Goods receipts list</a>
-        <a class="nav-item nav-link" href="{% url 'inventory:new-goods-returns' %}">Return goods</a>
-        <a class="nav-item nav-link" href="{% url 'inventory:goods-returns-list' %}">Goods returns list</a>
-        <a class="nav-item nav-link" href="{% url 'inventory:writeon-list' %}">Goods write on</a>
-        <a class="nav-item nav-link" href="{% url 'inventory:writeoff-list' %}">Goods write off</a>
+        <a class="nav-item nav-link" href="{% url 'inventory:goods-receipts-list' %}">Receipts list</a>
+        <a class="nav-item nav-link" href="{% url 'inventory:goods-returns-list' %}">Returns list</a>
+        <a class="nav-item nav-link" href="{% url 'inventory:writeon-list' %}">Write on</a>
+        <a class="nav-item nav-link" href="{% url 'inventory:writeoff-list' %}">Write off</a>
     </nav>
 {% endblock nav %}
 

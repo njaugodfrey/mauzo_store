@@ -1,6 +1,5 @@
 from django.urls import path
-from . import views
-from . import stocktake
+from . import views, stocktake, grn
 
 app_name = 'inventory'
 
@@ -38,51 +37,51 @@ urlpatterns = [
         'units-of-measurement/<int:pk>/update',
         views.update_unit, name='unit-update'
     ),
+    path(
+        'units-of-measurement/stock-list',
+        views.get_units, name='uom-list'
+    ),
     # Goods receipts
     path(
         'goods-receipt/create-new/',
-        views.create_goods_receipt, name='new-goods-receipt'
+        grn.create_goods_receipt, name='new-goods-receipt'
     ),
     path(
         'goods-receipt/grn-list/',
-        views.goods_receipts_list, name='goods-receipts-list'
+        grn.goods_receipts_list, name='goods-receipts-list'
     ),
     path(
         'goods-receipt/<str:slug>/<int:pk>/',
-        views.goods_receipt_details, name='goods-receipt-detail'
+        grn.goods_receipt_details, name='goods-receipt-detail'
     ),
     path(
         'goods-receipt/<str:slug>-<int:pk>/add-item',
-        views.add_receipt_items, name='new-item'
+        grn.add_receipt_items, name='new-item'
     ),
     path(
         'goods-receipt/<str:slug>-<int:pk>/remove-item/<int:item_pk>/',
-        views.remove_receipt_items, name='remove-item'
-    ),
-    path(
-        'goods-receipt/units-of-measurement/',
-        views.get_units, name='uom-list'
+        grn.remove_receipt_items, name='remove-item'
     ),
     # Goods returns
     path(
         'goods-returns/create-new/',
-        views.create_returns, name='new-goods-returns'
+        grn.create_returns, name='new-goods-returns'
     ),
     path(
         'goods-returns/grn-list/',
-        views.goods_returns_list, name='goods-returns-list'
+        grn.goods_returns_list, name='goods-returns-list'
     ),
     path(
         'goods-returns/<str:slug>/<int:pk>/',
-        views.goods_returns_detail, name='goods-returns-detail'
+        grn.goods_returns_detail, name='goods-returns-detail'
     ),
     path(
         'goods-returns/<str:slug>-<int:pk>/add-item',
-        views.add_returns_items, name='return-item'
+        grn.add_returns_items, name='return-item'
     ),
     path(
         'goods-returns/<str:slug>-<int:pk>/delete-item/<int:item_pk>/',
-        views.remove_returns_items, name='delete-item'
+        grn.remove_returns_items, name='delete-item'
     ),
     # Writeon
     path(

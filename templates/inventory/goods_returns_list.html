@@ -6,12 +6,43 @@ Goods returns list
 
 {% block inventory%}
 <div class="container-fluid">
-    {% for return in all_returns %}
-        <div class="card">
-            <div class="card-body">
-            <a href="{% url 'inventory:goods-returns-detail' return.slug return.id %}">{{return.return_number}}</a>
-            </div>
-      </div>
-    {% endfor %}
+    <a class="mb-4" href="{% url 'inventory:new-goods-returns' %}">
+        <button type="button" class="btn btn-dark">Receive Goods</button>
+    </a>
+
+    <table class="table mt-2">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Document #</th>
+                <th scope="col">User</th>
+                <th scope="col">Date</th>
+                <th scope="col">Supplier</th>
+                <th scope="col">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for return in all_returns %}
+                <tr>
+                    <th scope="row">
+                        <a class="" href="{% url 'inventory:goods-returns-detail' return.slug return.id %}">
+                            {{return.return_number}}
+                        </a>
+                    </th>
+                    <td>
+                        {{return.return_date}}
+                    </td>
+                    <td>
+                        {{return.input_by}}
+                    </td>
+                    <td>
+                        {{return.supplier}}
+                    </td>
+                    <td>
+                        {{return.total}}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock inventory%}

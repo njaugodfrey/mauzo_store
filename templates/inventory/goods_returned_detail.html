@@ -1,10 +1,14 @@
 {% extends "inventory/inventorybase.html" %}
 {% load static %}
 
+{% block title %}
+{{return.return_number}}
+{% endblock title %}
+
 {% block inventory %}
 <div class="container">
     <div class="container-fluid">
-        <form id="return-form" data-units-url="{% url 'inventory:uom-list' %}">
+        <form id="document-form" data-units-url="{% url 'inventory:uom-list' %}">
             <div class="row">
                 {% csrf_token %}
                 {% for field in form %}
@@ -50,6 +54,8 @@
 {% endblock inventory %}
 
 {% block javascript %}
-<script type="text/javascript" src="{% static 'printjs/print.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'scripts/grt.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/grn.js' %}"></script>
+    <script type="text/javascript">
+        $("#item-name").select2();
+    </script>
 {% endblock javascript %}
