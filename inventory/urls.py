@@ -102,7 +102,7 @@ urlpatterns = [
         stocktake.add_write_on_items, name='writeon-item'
     ),
     path(
-        'goods-returns/<str:slug>-<int:pk>/delete-item/<int:item_pk>/',
+        'write-on/<str:slug>-<int:pk>/delete-item/<int:item_pk>/',
         stocktake.remove_writeon_item, name='remove-writeon-item'
     ),
     # write off
@@ -120,6 +120,10 @@ urlpatterns = [
     ),
     path(
         'write-off/<slug>-<pk>/add-items/',
-        stocktake.add_write_off_item, name='writeon-item'
+        stocktake.add_write_off_item, name='writeoff-item'
+    ),
+    path(
+        'write-off/<str:slug>-<int:pk>/delete-item/<int:item_pk>/',
+        stocktake.remove_write_off_item, name='remove-writeoff-item'
     ),
 ]

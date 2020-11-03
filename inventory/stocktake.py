@@ -19,12 +19,12 @@ from mauzo.decorators import allowed_user
 def create_write_on(request):
     last_write_on = StockWriteOn.objects.all().order_by('write_on_number').last()
     if not last_write_on:
-        write_on_number = 'SWO-' + str(1).zfill(4)
+        write_on_number = 'WON-' + str(1).zfill(4)
     else:
         document_number = last_write_on.write_on_number
         document_int = int(document_number[4:])
         new_document_int = document_int + 1
-        new_document_number = 'SWO-' + str(new_document_int).zfill(4)
+        new_document_number = 'WON-' + str(new_document_int).zfill(4)
         write_on_number = new_document_number
     write_on_date = datetime.today()
     input_by = request.user
@@ -121,11 +121,13 @@ def remove_writeon_item(request, pk, slug, item_pk):
         item = GoodsWrittenOn.objects.get(
             pk=int(QueryDict(request.body).get('item_pk'))
         )
-        item_product = item.product
+        item_product = item.stock
+        item_unit = item.unit_of_measurement
         item.delete()
         stock_obj = Stock.objects.get(pk=item_product.pk)
         stock_obj_quantity = stock_obj.quantity
-        stock_obj.quantity = int(stock_obj_quantity) - int(item.quantity)
+        remove_quantity = float(item_unit.base_quantity) * float(item.quantity)
+        stock_obj.quantity = float(stock_obj_quantity) - float(remove_quantity)
         stock_obj.save()
 
         response_data = {'msg': 'Item removed.'}
@@ -146,19 +148,19 @@ def remove_writeon_item(request, pk, slug, item_pk):
 @login_required
 @allowed_user(['Accounts'])
 def create_write_off(request):
-    last_write_off = StockWriteOn.objects.all().order_by('write_off_number').last()
+    last_write_off = StockWriteOff.objects.all().order_by('write_off_number').last()
     if not last_write_off:
-        write_off_number = 'SWO-' + str(1).zfill(4)
+        write_off_number = 'WOF-' + str(1).zfill(4)
     else:
         document_number = last_write_off.write_off_number
         document_int = int(document_number[4:])
         new_document_int = document_int + 1
-        new_document_number = 'SWO-' + str(new_document_int).zfill(4)
+        new_document_number = 'WOF-' + str(new_document_int).zfill(4)
         write_off_number = new_document_number
     write_off_date = datetime.today()
     input_by = request.user
 
-    new_write_off = StockWriteOn(
+    new_write_off = StockWriteOff(
         write_off_date=write_off_date,
         write_off_number=write_off_number,
         input_by=input_by
@@ -251,11 +253,13 @@ def remove_write_off_item(request, pk, slug, item_pk):
         item = GoodsWrittenOff.objects.get(
             pk=int(QueryDict(request.body).get('item_pk'))
         )
-        item_product = item.product
+        item_product = item.stock
+        item_unit = item.unit_of_measurement
         item.delete()
         stock_obj = Stock.objects.get(pk=item_product.pk)
         stock_obj_quantity = stock_obj.quantity
-        stock_obj.quantity = int(stock_obj_quantity) + int(item.quantity)
+        remove_quantity = float(item_unit.base_quantity) * float(item.quantity)
+        stock_obj.quantity = float(stock_obj_quantity) + float(remove_quantity)
         stock_obj.save()
 
         response_data = {'msg': 'Item removed.'}

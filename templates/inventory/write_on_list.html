@@ -6,52 +6,31 @@ Stocks Writeon list
 
 {% block inventory%}
 <div class="container-fluid">
-    {% for receipt in all_receipts %}
-        <div class="card">
-            <div class="card-body">
-            <a href="{% url 'inventory:goods-receipt-detail' receipt.slug receipt.id %}">{{receipt.receipt_number}}</a>
-            </div>
-      </div>
-    {% endfor %}
+    <a class="mb-4" href="{% url 'inventory:new-writeon' %}">
+        <button type="button" class="btn btn-dark">Add stock</button>
+    </a>
+
     <table class="table mt-2">
         <thead class="thead-dark">
             <tr>
-                <th scope="col">Receipt #</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Time</th>
-                <th scope="col">Actions</th>
+                <th scope="col">Document #</th>
+                <th scope="col">User</th>
+                <th scope="col">Date</th>
             </tr>
         </thead>
         <tbody>
-            {% for writeon in all_writeons %}
+            {% for writeon in writeons %}
                 <tr>
                     <th scope="row">
-                        <a class="" href="{% url 'sales:view_writeon' writeon.slug writeon.id %}">
-                            {{writeon.writeon_number}}
+                        <a class="" href="{% url 'inventory:writeon-detail' writeon.slug writeon.id %}">
+                            {{writeon.write_on_number}}
                         </a>
                     </th>
                     <td>
-                        {{writeon.salesman}}
+                        {{writeon.input_by}}
                     </td>
                     <td>
-                        {{writeon.total}}
-                    </td>
-                    <td>
-                        {{writeon.sale_date}}
-                    </td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="Basic example">
-                            <a class="mr-3" href="{% url 'sales:sales_returns' writeon.slug writeon.id%}">
-                                <button type="button" class="btn btn-primary">
-                                        Void
-                                </button>
-                            </a>
-                            <a href="{% url 'sales:update_writeon' writeon.slug writeon.id%}">
-                                <button type="button" class="btn btn-primary">
-                                        Update
-                                </button>
-                            </a>
-                        </div>
+                        {{writeon.write_on_date}}
                     </td>
                 </tr>
             {% endfor %}

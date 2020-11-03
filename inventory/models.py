@@ -152,7 +152,7 @@ class ReceivedGoods(models.Model):
     stock = models.ForeignKey(
         Stock, on_delete=models.PROTECT
     )
-    quantity = models.IntegerField(
+    quantity = models.FloatField(
         verbose_name='Quantity'
     )
     unit_of_measurement = models.ForeignKey(
@@ -174,7 +174,7 @@ class ReturnedGoods(models.Model):
     stock = models.ForeignKey(
         Stock, on_delete=models.PROTECT
     )
-    quantity = models.IntegerField(
+    quantity = models.FloatField(
         verbose_name='Quantity'
     )
     unit_of_measurement = models.ForeignKey(
@@ -218,7 +218,7 @@ class GoodsWrittenOn(models.Model):
     stock = models.ForeignKey(
         Stock, on_delete=models.PROTECT
     )
-    quantity = models.IntegerField(
+    quantity = models.FloatField(
         verbose_name='Quantity'
     )
     unit_of_measurement = models.ForeignKey(
@@ -256,7 +256,7 @@ class GoodsWrittenOff(models.Model):
     stock = models.ForeignKey(
         Stock, on_delete=models.PROTECT
     )
-    quantity = models.IntegerField(
+    quantity = models.FloatField(
         verbose_name='Quantity'
     )
     unit_of_measurement = models.ForeignKey(

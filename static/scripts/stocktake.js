@@ -40,8 +40,6 @@ $(document).ready(function(){
                     "<tr>",
                     "<td>"+json.item_name+"</td>",
                     "<td>"+json.item_quantity+"</td>",
-                    "<td>"+json.item_price+"</td>",
-                    "<td>"+json.total_cost+"</td>",
                     "<a class='item-remove' data-url='{% url 'inventory:remove-item' slug=writeon.slug pk=writeon.id item_pk=item.pk %}' id='delete-post-"+json.item_id+"'>",
                         "<button type='button' class='btn btn-danger'>Remove</button>",
                     "</a>",

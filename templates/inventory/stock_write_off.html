@@ -1,10 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "inventory/inventorybase.html" %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}
+{{writeoff.write_off_number}}
+{% endblock title %}
+
+{% block inventory %}
+<div class="container">
+    <div class="container-fluid">
+        <form id="write-on-form" data-units-url="{% url 'inventory:uom-list' %}">
+            <div class="row">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group col-4">
+                    <label class="col-12">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <div id="results"></div> <!-- errors go here -->
+                <input type="submit" class="btn btn-primary" value="Add item" data-url="{% url 'inventory:writeoff-item' writeoff.slug writeoff.id %}" id="add_item" />
+            </div>
+        </form>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <th>Item name</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+        </thead>
+        <tbody id="write-on-items">
+            {% for item in items %}
+                <tr>
+                    <td>{{item.stock.stock_name}}</td>
+                    <td>{{item.quantity}}</td>
+                    <td>
+                        <a class="item-remove" data-url="{% url 'inventory:remove-writeoff-item' slug=writeoff.slug pk=writeoff.id item_pk=item.pk %}" id="remove-item-{{item.pk}}">
+                        <button type="button" class="btn btn-danger">Remove</button>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center bg-warning">Empty receipt</td>
+                    </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock inventory %}
+
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'scripts/stocktake.js' %}"></script>
+    <script type="text/javascript">
+        $("#item-name").select2();
+    </script>
+{% endblock javascript %}
