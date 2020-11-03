@@ -12,6 +12,7 @@ from mauzo.decorators import allowed_user
 
 
 # Create your views here.
+# views for grn and stock take in respective .py files
 
 # Inventory stocks
 @login_required
