@@ -53,7 +53,7 @@ $(document).ready(function () {
                     "</a>",
                     "</tr>"
                 );
-                $("#receipt-total").html(json.receipt_total);
+                $("#receipt-total").html(json.document_total);
                 console.log("success"); // another sanity check
             },
             // handle a non-successful response

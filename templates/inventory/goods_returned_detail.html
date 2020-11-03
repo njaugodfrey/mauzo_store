@@ -23,6 +23,10 @@
         </form>
     </div>
 
+    <div class="alert alert-success text-center mt-4 mb-4" role="alert" id="receipt-total">
+        Total: {{return.total}}
+    </div>
+
     <table class="table table-bordered">
         <thead>
             <th>Item name</th>
@@ -31,7 +35,7 @@
             <th>Amount</th>
             <th>Actions</th>
         </thead>
-        <tbody id="return-items">
+        <tbody id="document-items">
             {% for item in items %}
                 <tr>
                     <td>{{item.stock.stock_name}}</td>

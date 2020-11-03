@@ -79,7 +79,7 @@ class ReturnedGoodsForm(forms.ModelForm):
     class Meta:
         model = models.ReturnedGoods
         fields = [
-            'stock', 'quantity', 'unit_of_measurement', 'price'
+            'stock', 'quantity', 'unit_of_measurement'
         ]
         widgets = {
             'quantity': forms.NumberInput(attrs={
@@ -89,10 +89,6 @@ class ReturnedGoodsForm(forms.ModelForm):
             }),
             'stock': forms.Select(attrs={
                 'id': 'item-name',
-                'required': True
-            }),
-            'price': forms.NumberInput(attrs={
-                'id': 'item-price',
                 'required': True
             }),
             'unit_of_measurement': forms.Select(attrs={
