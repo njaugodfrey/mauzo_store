@@ -3,7 +3,7 @@ from win32printing import Printer
 
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import datetime
 from django.db.models import Sum, Q

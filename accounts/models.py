@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 
 class vat(models.Model):
@@ -23,11 +24,5 @@ class BankAccount(models.Model):
         max_length=20
     )
     bank_name = models.CharField(
-        max_length=20
-    )
-
-
-class CashAccount(models.Model):
-    account_name = models.CharField(
         max_length=20
     )
