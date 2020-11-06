@@ -3,7 +3,6 @@ from win32printing import Printer
 
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import datetime
 from django.db.models import Sum, Q
@@ -31,6 +30,22 @@ def receipts_list(request):
     return render(
         request, template_name='sales/receipts_list.html',
         context=context
+    )
+
+
+@login_required
+def search_receipts(request):
+    if 'q' in request.GET:
+        query = request.GET['q']
+
+        receipts = SalesReceipt.objects.filter(
+            receipt_number__icontains=query
+        ).order_by('sale_date')
+    
+    context = {'receipts': receipts}
+    return render(
+        request, context=context,
+        template_name='sales/search_results.html'
     )
 
 
@@ -76,7 +91,7 @@ def create_sales_receipt(request):
                                  str(datetime.today().day).zfill(2) + '001'
         else:
             receipt_number = last_receipt.receipt_number
-            receipt_int = int(receipt_number[7:11])
+            receipt_int = int(receipt_number[6:])
             new_receipt_int = receipt_int + 1
             new_receipt_number = 'CS' + str(datetime.today().month).zfill(2) + \
                                  str(datetime.today().day).zfill(2) + str(new_receipt_int).zfill(4)
@@ -153,7 +168,6 @@ def create_sales_invoice(request, pk):
 
 
 @login_required
-@allowed_user(['Accounts'])
 def sales_receipt_detail(request, pk, slug):
     receipt = get_object_or_404(SalesReceipt, pk=pk)
     form = SoldGoodsForm(request.POST or None)
@@ -256,7 +270,6 @@ def add_receipt_items(request, pk, slug):
         )
 
 
-@csrf_exempt
 @login_required
 def remove_receipt_items(request):
     if request.method == 'DELETE':
@@ -264,10 +277,14 @@ def remove_receipt_items(request):
             pk=int(QueryDict(request.body).get('item_pk'))
         )
         item_product = item.product
+        item_unit = item.unit_of_measurement.base_quantity
         item.delete()
+
+        # update stock quantity
         product_obj = Stock.objects.get(pk=item_product.pk)
         product_obj_quantity = product_obj.quantity
-        product_obj.quantity = int(product_obj_quantity) + int(item.quantity)
+        product_obj.quantity = float(product_obj_quantity) + \
+            float(item.quantity * item_unit)
         product_obj.save()
 
         # update receipt total
@@ -419,35 +436,41 @@ def print_decoy_receipt(request, pk):
 
 
 # void a sale
-@csrf_exempt
 @login_required
 def sales_returns(request, pk, slug, item_pk):
     if request.method == 'POST':
-        item = request.POST.get('item')
-        sale_item = request.POST.get('saleItem')
+        item = SoldGoods.objects.get(
+            pk=int(QueryDict(request.body).get('item_pk'))
+        )
         quantity = request.POST.get('quantity')
         price = request.POST.get('price')
         uom = request.POST.get('uom')
 
-        return_rcpt = SoldGoods.objects.get(pk=sale_item)
+        return_rcpt = SoldGoods.objects.get(pk=item.pk)
         return_rcpt.void_sale = True
         return_rcpt.save()
         response_data = {}
 
         return_item = SalesReceiptVoid(
-            receipt_ref=SalesReceipt.objects.get(pk=return_rcpt.receipt_ref.pk),
-            sale_item_ref=SoldGoods.objects.get(pk=sale_item),
+            receipt_ref=SalesReceipt.objects.get(
+                pk=return_rcpt.receipt_ref.pk
+            ),
+            sale_item_ref=SoldGoods.objects.get(pk=item.pk),
             product=Stock.objects.get(pk=return_rcpt.product.pk),
-            quantity=-int(return_rcpt.quantity),
-            unit_of_measurement=UnitOfMeasurement.objects.get(pk=return_rcpt.unit_of_measurement.pk),
+            quantity=-float(return_rcpt.quantity),
+            unit_of_measurement=UnitOfMeasurement.objects.get(
+                pk=return_rcpt.unit_of_measurement.pk
+            ),
             price=-return_rcpt.price,
-            amount=-int(return_rcpt.quantity) * int(float(return_rcpt.price))
+            amount=-float(return_rcpt.quantity) * float(float(return_rcpt.price))
         )
         return_item.save()
 
-        stock_item = Stock.objects.get(stock_name=item)
+        stock_item = Stock.objects.get(pk=item.product.pk)
         stock_item_quantity = stock_item.quantity
-        stock_item.quantity = int(stock_item_quantity) + int(return_rcpt.quantity)
+        stock_item_unit = item.unit_of_measurement.base_quantity
+        stock_item.quantity = float(stock_item_quantity) + \
+            float(return_rcpt.quantity * stock_item_unit)
         stock_item.save()
 
         response_data['result'] = 'Item saved successfully'
@@ -469,7 +492,6 @@ def sales_returns(request, pk, slug, item_pk):
         )
 
 
-@csrf_exempt
 @login_required
 def sales_returns_detail(request, slug, pk):
     receipt = get_object_or_404(SalesReceipt, pk=pk)

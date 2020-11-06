@@ -1,5 +1,20 @@
 $(document).ready(function () {
-    $("#item-name").select2();
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
 
     $("#item-name").change(function () {
         console.log('working')
@@ -95,10 +110,9 @@ $(document).ready(function () {
     function remove_item(item_primary_key) {
         if (confirm('are you sure you want to remove this item?')==true) {
             console.log($(".item-remove").data('url'));
-            //const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             $.ajax({
                 url : $("#receipt-items").data('url'),
-                //headers: {'X-CSRFToken': csrftoken},// manually send csrftoken
+                headers: {'X-CSRFToken': csrftoken},// manually send csrftoken
                 type : "DELETE",
                 // data sent with the delete request
                 data : { item_pk : item_primary_key },
@@ -137,21 +151,11 @@ $(document).ready(function () {
     // Void receipt/sales returns
     function sales_returns(item_primary_key) {
         console.log("sales return is working!") // sanity check
-        console.log(document.getElementById("item-name").innerHTML);
-        console.log(document.getElementById("item-quantity").innerHTML);
-        console.log(document.getElementById("item-price").innerHTML);
-        console.log(document.getElementById("item-uom").innerHTML);
-
         $.ajax({
             url: $(".item-return").data('return-url'),
+            headers: {'X-CSRFToken': csrftoken},// manually send csrftoken
             type: 'POST',
-            data: {
-                item: document.getElementById("item-name").innerHTML,
-                quantity: document.getElementById("item-quantity").innerHTML,
-                price: document.getElementById("item-price").innerHTML,
-                saleItem: item_primary_key,
-                uom: document.getElementById("item-uom").innerHTML
-            },
+            data : { item_pk : item_primary_key },
             success: function (json) {
                 console.log(json);
                 console.log("Success");

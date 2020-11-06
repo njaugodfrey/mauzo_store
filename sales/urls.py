@@ -2,10 +2,12 @@ from django.conf.urls import url
 from django.urls import path, include
 
 from . import views
+from . import creditsales
 
 app_name = 'sales'
 
 urlpatterns = [
+    # sales receipts
     path(
         'receipts/all/', views.receipts_list, name='all_receipts'
     ),
@@ -30,7 +32,11 @@ urlpatterns = [
         name='new_invoice'
     ),
     path(
-        'receipts/all/search/', views.filter_receipts,
+        'receipts/all/filter/', views.filter_receipts,
+        name='filter_receipts'
+    ),
+    path(
+        'receipts/all/search/', views.search_receipts,
         name='search_receipts'
     ),
     # Sold goods urls
@@ -46,6 +52,7 @@ urlpatterns = [
         'receipt/unit-of-measurement/price',
         views.unit_values, name='unit-values'
     ),
+    # sales returns/void
     path(
         'returns/<str:slug>-<int:pk>/return-item/<int:item_pk>/',
         views.sales_returns, name='return-product'
@@ -62,4 +69,10 @@ urlpatterns = [
         'receipts/print/decoy/<int:pk>/', views.print_decoy_receipt,
         name='print-decoy'
     ),
+    # sales invoices
+    path(
+        'invoices/new-invoice/', creditsales.create_sales_invoice,
+        name='new-invoice'
+    ),
+
 ]

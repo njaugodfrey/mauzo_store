@@ -1,0 +1,58 @@
+{% extends "sales/salesbase.html" %}
+{% load static %}
+
+{% block title %}
+Sales - Receipts search
+{% endblock title %}
+
+{% for receipt in receipts %}
+{{receipt.receipt_number}}
+{% endfor %}
+
+{% block content %}
+<table class="table mt-2">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Receipt #</th>
+            <th scope="col">Salesperson</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Time</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for receipt in receipts %}
+            <tr>
+                <th scope="row">
+                    <a class="" href="{% url 'sales:view_receipt' receipt.slug receipt.id %}">
+                        {{receipt.receipt_number}}
+                    </a>
+                </th>
+                <td>
+                    {{receipt.salesman}}
+                </td>
+                <td>
+                    {{receipt.total}}
+                </td>
+                <td>
+                    {{receipt.sale_date}}
+                </td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <a class="mr-3" href="{% url 'sales:sales_returns' receipt.slug receipt.id%}">
+                            <button type="button" class="btn btn-primary">
+                                    Void
+                            </button>
+                        </a>
+                        <a href="{% url 'sales:update_receipt' receipt.slug receipt.id%}">
+                            <button type="button" class="btn btn-primary">
+                                    Update
+                            </button>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}
