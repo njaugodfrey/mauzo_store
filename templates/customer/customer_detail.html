@@ -16,7 +16,7 @@ Customers - {{customer.customer_name}}
               </ul>
         </p>
         <a href="{% url 'customer:update_customer' customer.slug customer.pk %}" class="card-link">Update</a>
-        <a href="{% url 'sales:new_invoice' customer.pk %}" class="card-link">New invoice</a>
+        <a href="{% url 'sales:new-invoice' customer.pk %}" class="card-link">New invoice</a>
     </div>
 </div>
 

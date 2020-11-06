@@ -1,6 +1,5 @@
 from django.db import models
 from django.template.defaultfilters import slugify
-#from sales.models import SalesReceipt
 
 
 # Create your models here.
@@ -42,23 +41,23 @@ class Customer(models.Model):
         return '{}'.format(self.customer_name)
 
 
-class CashReceipt(models.Model):
-    receipt_number = models.CharField(
-        verbose_name='Receipt number',
-        max_length=20
-    )
-    payer = models.CharField(
-        verbose_name='Payer', null=True,
-        blank=True, max_length=50
-    )
-    customer = models.ForeignKey(
-        Customer, verbose_name='Customer',
-        null=True, blank=True, on_delete=models.CASCADE
-    )
-    """sales_ref = models.ManyToManyField(
-        SalesReceipt, verbose_name='Receipt', null=True,
-        blank=True
-    )"""
-    amount = models.FloatField(
-        verbose_name='Amount'
-    )
+# class CashReceipt(models.Model):
+#     receipt_number = models.CharField(
+#         verbose_name='Receipt number',
+#         max_length=20
+#     )
+#     payer = models.CharField(
+#         verbose_name='Payer', null=True,
+#         blank=True, max_length=50
+#     )
+#     customer = models.ForeignKey(
+#         Customer, verbose_name='Customer',
+#         null=True, blank=True, on_delete=models.CASCADE
+#     )
+#     """sales_ref = models.ManyToManyField(
+#         SalesReceipt, verbose_name='Receipt', null=True,
+#         blank=True
+#     )"""
+#     amount = models.FloatField(
+#         verbose_name='Amount'
+#     )

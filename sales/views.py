@@ -442,9 +442,6 @@ def sales_returns(request, pk, slug, item_pk):
         item = SoldGoods.objects.get(
             pk=int(QueryDict(request.body).get('item_pk'))
         )
-        quantity = request.POST.get('quantity')
-        price = request.POST.get('price')
-        uom = request.POST.get('uom')
 
         return_rcpt = SoldGoods.objects.get(pk=item.pk)
         return_rcpt.void_sale = True

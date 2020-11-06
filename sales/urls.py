@@ -29,7 +29,7 @@ urlpatterns = [
     ),
     path(
         'invoices/new-invoice/<pk>', views.create_sales_invoice,
-        name='new_invoice'
+        name='new_topay'
     ),
     path(
         'receipts/all/filter/', views.filter_receipts,
@@ -74,5 +74,16 @@ urlpatterns = [
         'invoices/new-invoice/', creditsales.create_sales_invoice,
         name='new-invoice'
     ),
-
+    path(
+        'invoices/<slug>-<pk>/detail/',
+        creditsales.sales_invoice_detail, name='invoice-detail'
+    ),
+    path(
+        'receipt/<str:slug>-<int:pk>/add-item',
+        creditsales.add_invoice_items, name='invoice-new-product'
+    ),
+    path(
+        'receipt/remove-item/',
+        creditsales.remove_invoice_items, name='invoice-remove-product'
+    ),
 ]
