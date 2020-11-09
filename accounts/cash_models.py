@@ -19,19 +19,19 @@ class CashReceipt(models.Model):
         verbose_name='Receipt Number',  max_length=50,
         unique=True
     )
+    description = models.TextField(
+        verbose_name='Description', blank=True,
+        null=True
+    )
     customer = models.ForeignKey(
         customers.Customer, on_delete=models.CASCADE,
-        null=True, blank=True
-    )
-    invoice = models.ForeignKey(
-        SalesInvoice, on_delete=models.CASCADE,
         null=True, blank=True
     )
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,
         null=True, blank=True
     )
-    amount = models.FloatField(
+    total = models.FloatField(
         verbose_name='Amount'
     )
     slug = models.SlugField(
@@ -44,3 +44,18 @@ class CashReceipt(models.Model):
 
     def __str__(self):
         return '{}'.format(self.receipt_number)
+
+
+class CashReceiptItems(models.Model):
+    receipt_ref = models.ForeignKey(
+        CashReceipt, on_delete=models.CASCADE
+    )
+    invoice = models.ForeignKey(
+        SalesInvoice, on_delete=models.CASCADE,
+        blank=True, null=True
+    )
+    description = models.CharField(
+        verbose_name='Item description',
+        null=True, blank=True, max_length=250
+    )
+    amount = models.FloatField

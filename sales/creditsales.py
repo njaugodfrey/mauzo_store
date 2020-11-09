@@ -9,7 +9,7 @@ from django.db.models import Sum
 from .forms import SoldGoodsForm
 from .models import SalesInvoice, InvoiceGoodsReturns, InvoiceGoods
 from inventory.models import Stock, UnitOfMeasurement
-from accounts.cash_model import CashReceipt
+from accounts.cash_models import CashReceipt
 from companyprofile.models import Company
 from customer.models import Customer
 from mauzo.decorators import allowed_user
