@@ -71,15 +71,19 @@ urlpatterns = [
     ),
     # sales invoices
     path(
-        'invoices/new-invoice/', creditsales.create_sales_invoice,
+        'invoices/new-invoice/<pk>/', creditsales.create_sales_invoice,
         name='new-invoice'
+    ),
+    path(
+        'invoices/list/', creditsales.invoices_list,
+        name='invoices-list'
     ),
     path(
         'invoices/<slug>-<pk>/detail/',
         creditsales.sales_invoice_detail, name='invoice-detail'
     ),
     path(
-        'receipt/<str:slug>-<int:pk>/add-item',
+        'invoices/<str:slug>-<int:pk>/add-item',
         creditsales.add_invoice_items, name='invoice-new-product'
     ),
     path(

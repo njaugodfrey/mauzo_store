@@ -20,7 +20,7 @@ from mauzo.decorators import allowed_user
 def invoices_list(request):
     context = {'invoices': SalesInvoice.objects.all()}
     return render(
-        request, template_name='',
+        request, template_name='sales/invoices_list.html',
         context=context
     )
 
@@ -33,17 +33,17 @@ def create_sales_invoice(request, pk):
     if not last_invoice:
         invoice_number = 'SI0001'
     else:
-        invoice_number = last_invoice.receipt_number
+        invoice_number = last_invoice.invoice_number
         invoice_int = int(invoice_number[2:])
         new_invoice_int = invoice_int + 1
         new_invoice_number = 'SI' + str(new_invoice_int).zfill(4)
         invoice_number = new_invoice_number
-    sale_date = datetime.today()
+    invoice_date = datetime.today()
     salesman = request.user
 
     new_invoice = SalesInvoice(
-        sale_date=sale_date,
-        receipt_number=invoice_number,
+        invoice_date=invoice_date,
+        invoice_number=invoice_number,
         customer=customer,
         salesman=salesman
     )
@@ -66,7 +66,7 @@ def sales_invoice_detail(request, pk, slug):
         'form': form
     }
     return render(
-        request, template_name='',
+        request, template_name='sales/invoice_detail.html',
         context=context
     )
 
@@ -118,7 +118,7 @@ def add_invoice_items(request, pk, slug):
             response_data['item_price'] = invoice_item.price
             response_data['item_vat'] = round(invoice_item.vat, 2)
             response_data['total_cost'] = invoice_item.amount
-            response_data['invoice_total'] = invoice.total
+            response_data['receipt_total'] = invoice.total
 
             return HttpResponse(
                 json.dumps(response_data),

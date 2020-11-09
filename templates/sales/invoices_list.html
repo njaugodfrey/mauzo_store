@@ -1,0 +1,46 @@
+{% extends "sales/salesbase.html" %}
+{% load static %}
+
+{% block title %}
+Sales - All invoices
+{% endblock title %}
+
+{% block content %}
+    <div class="container">
+        <table class="table mt-2">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Invoice #</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Salesperson</th>
+                    <th scope="col">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <th scope="row">
+                            <a class="" href="{% url 'sales:invoice-detail' invoice.slug invoice.id %}">
+                                {{invoice.invoice_number}}
+                            </a>
+                        </th>
+                        <td>
+                            <a href="{% url 'customer:customer_detail' invoice.customer.slug invoice.customer.pk %}">
+                                {{invoice.customer}}
+                            </a>
+                        </td>
+                        <td>
+                            {{invoice.salesman}}
+                        </td>
+                        <td>
+                            {{invoice.total}}
+                        </td>
+                        <td>
+                            {{invoice.sale_date}}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}

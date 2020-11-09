@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 
 from mauzo.decorators import allowed_user
 from .models import Customer
 from .forms import CustomerForm
-from sales.models import SalesReceipt
+from sales.creditsales import SalesInvoice, InvoiceGoodsReturns
 
 
 # Create your views here.
@@ -26,8 +27,8 @@ def customers_list(request):
 @allowed_user(['Accounts'])
 def customer_detail(request, pk, slug):
     customer = Customer.objects.get(customer_code=pk)
-    invoices = SalesReceipt.objects.filter(
-        debtors_account=customer.customer_code
+    invoices = SalesInvoice.objects.filter(
+        customer=pk
     ).select_related()
     context = {
         'customer': customer,

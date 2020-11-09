@@ -13,16 +13,17 @@ Customers - {{customer.customer_name}}
                 <li class="list-group-item">{{customer.customer_full_name}}</li>
                 <li class="list-group-item">{{customer.phone_number}}</li>
                 <li class="list-group-item">{{customer.location}}</li>
-              </ul>
+                <li class="list-group-item">{{customer.location}}</li>
+            </ul>
         </p>
         <a href="{% url 'customer:update_customer' customer.slug customer.pk %}" class="card-link">Update</a>
         <a href="{% url 'sales:new-invoice' customer.pk %}" class="card-link">New invoice</a>
     </div>
 </div>
 
-<div class="invoices">
+<div class="invoices ml-5">
     {% for invoice in invoices %}
-    {{invoice.receipt_number}}
+    {{invoice.invoice_number}}
     {% endfor %}
 </div>
 {% endblock customer %}

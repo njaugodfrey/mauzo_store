@@ -27,11 +27,9 @@ Sales - {{invoice.invoice_number}}
             </form>
         </div>
         
-        <div class="">
-            <a href="{% url 'sales:print-invoice' invoice.pk %}">Print</a>
-        </div>
+        
 
-        <div class="alert alert-success text-center mt-4 mb-4" role="alert" id="invoice-total">
+        <div class="alert alert-success text-center mt-4 mb-4" role="alert" id="receipt-total">
             Total: {{invoice.total}}
         </div>
 
