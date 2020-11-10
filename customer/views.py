@@ -49,15 +49,15 @@ def create_customer(request):
         obj = form.save(commit=False)
         
         # auto assign customer code
-        all_customers = Customer.objects.all()
+        last_customer = Customer.objects.all().order_by('customer_code').last()
         customer_code = str(obj.customer_name[0:1]) + '001'
-        if customer_code in all_customers:
-            customer_int = int(customer_code[1:4])
+        if not last_customer:
+            obj.customer_code = customer_code
+        else:
+            customer_int = int(customer_code[1:])
             new_customer_int = customer_int + 1
             new_customer_code = str(obj.customer_name[0:1]) + str(new_customer_int).zfill(3)
             obj.customer_code = new_customer_code
-        else:
-            obj.customer_code = customer_code
         
         obj.save()
         return redirect(

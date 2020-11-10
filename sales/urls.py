@@ -1,8 +1,6 @@
-from django.conf.urls import url
 from django.urls import path, include
 
-from . import views
-from . import creditsales
+from . import views, creditsales
 
 app_name = 'sales'
 

@@ -1,0 +1,38 @@
+{% extends "accounts/accountsbase.html" %}
+
+{% block title %}
+Accounts - All receipts
+{% endblock title %}
+
+{% block content %}
+    <a class="mb-4 mt-2" href="{% url 'accounts:new-cash-receipt' %}">
+        <button type="button" class="btn btn-dark">Receive cash</button>
+    </a>
+
+    <div class="container-fluid">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Receipt number</th>
+                    <th>Date</th>
+                    <th>Recepient</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for receipt in all_receipts %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'accounts:cash-receipt-detail' receipt.slug receipt.id %}">
+                                {{receipt.receipt_number}}
+                            </a>
+                        </td>
+                        <td>{{receipt.receipt_date}}</td>
+                        <td>{{receipt.user}}</td>
+                        <td>{{receipt.total}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}

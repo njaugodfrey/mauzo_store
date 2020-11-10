@@ -16,8 +16,9 @@ Customers - {{customer.customer_name}}
                 <li class="list-group-item">{{customer.location}}</li>
             </ul>
         </p>
-        <a href="{% url 'customer:update_customer' customer.slug customer.pk %}" class="card-link">Update</a>
-        <a href="{% url 'sales:new-invoice' customer.pk %}" class="card-link">New invoice</a>
+        <a href="{% url 'customer:update_customer' customer.slug customer.pk %}" class="card-link">Update</a><br>
+        <a href="{% url 'sales:new-invoice' customer.pk %}" class="card-link">New invoice</a><br>
+        <a href="{% url 'accounts:receipt-customer' customer.pk %}" class="card-link">Payment receipt</a><br>
     </div>
 </div>
 

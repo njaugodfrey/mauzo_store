@@ -58,4 +58,4 @@ class CashReceiptItems(models.Model):
         verbose_name='Item description',
         null=True, blank=True, max_length=250
     )
-    amount = models.FloatField
+    amount = models.FloatField()

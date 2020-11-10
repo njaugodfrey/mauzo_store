@@ -1,0 +1,20 @@
+{% extends "accounts/accountsbase.html" %}
+
+{% block title %}
+Accounts - New cash receipt
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <form method="POST" class="">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-primary">Save</button>
+    </form>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+<script>
+    $("#customer").select2();
+</script>
+{% endblock javascript %}

@@ -1,0 +1,41 @@
+{% extends "accounts/accountsbase.html" %}
+
+{% block title %}
+Accounts - {{receipt.receipt_number}}
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="receipt-details">
+        {{receipt.receipt_number}}
+        {{receipt.receipt_date}}
+        {% if receipt.description %}
+        {{receipt.description}}
+        {% else %}
+        No description
+        {% endif %}
+    </div>
+    <div class="receipt-form">
+        <form method="post">
+            <div class="row">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="form-group col-4">
+                        <label class="col-12">{{field.label}}</label>
+                        {{field}}
+                    </div>
+                {% endfor %}
+                    
+            </div>
+        </form>
+    </div>
+    <div class="receipt-items"></div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+<script>
+    $("#related_invoice").select2();
+</script>
+{% endblock javascript %}
