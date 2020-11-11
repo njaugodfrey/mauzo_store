@@ -74,10 +74,12 @@ def create_cash_receipt(request):
 def view_cash_receipt(request, pk, slug):
     receipt = get_object_or_404(CashReceipt, pk=pk)
     form = ReceiptItemsForm(request.POST or None)
+    details = CashReceiptItems.objects.filter(receipt_ref=receipt.id).select_related()
     
     context = {
         'receipt': receipt,
-        'form': form
+        'form': form,
+        'details': details
     }
     return render(
         request, template_name='accounts/view_cash_receipt.html',

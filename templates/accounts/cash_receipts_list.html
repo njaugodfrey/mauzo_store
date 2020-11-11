@@ -16,6 +16,7 @@ Accounts - All receipts
                     <th>Receipt number</th>
                     <th>Date</th>
                     <th>Recepient</th>
+                    <th>Payer</th>
                     <th>Amount</th>
                 </tr>
             </thead>
@@ -29,6 +30,7 @@ Accounts - All receipts
                         </td>
                         <td>{{receipt.receipt_date}}</td>
                         <td>{{receipt.user}}</td>
+                        <td>{{receipt.customer}}</td>
                         <td>{{receipt.total}}</td>
                     </tr>
                 {% endfor %}

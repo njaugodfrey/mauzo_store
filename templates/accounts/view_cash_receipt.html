@@ -7,19 +7,25 @@ Accounts - {{receipt.receipt_number}}
 
 {% block content %}
 <div class="container">
-    <div class="receipt-details">
-        {{receipt.receipt_number}}
-        {{receipt.receipt_date}}
-        {% if receipt.description %}
-        {{receipt.description}}
-        {% else %}
-        No description
-        {% endif %}
-        <p id="customer-id" data-inquiry-url="{% url 'accounts:get-invoices' %}">
-            {{receipt.customer.pk}}
-        </p>
+    <div class="receipt-details container-fluid">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">{{receipt.receipt_number}}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{receipt.receipt_date}}</h6>
+                <p class="card-text" id="customer-id" data-inquiry-url="{% url 'accounts:get-invoices' %}">
+                    {{receipt.customer.pk}}
+                </p>
+                <pclass="card-text">
+                    {% if receipt.description %}
+                        {{receipt.description}}
+                    {% else %}
+                        No description
+                    {% endif %}
+                </p>
+            </div>
+        </div>
     </div>
-    <div class="receipt-form">
+    <div class="receipt-form container-fluid mb-5">
         <form method="post">
             <div class="row">
                 {% csrf_token %}
@@ -30,11 +36,33 @@ Accounts - {{receipt.receipt_number}}
                         {{field}}
                     </div>
                 {% endfor %}
-                    
+                <input type="submit" class="btn btn-primary" value="Add item" data-url="" id="add_item" /> 
             </div>
         </form>
     </div>
-    <div class="receipt-items"></div>
+    <div class="receipt-items">
+        <table class="table table-bordered">
+            <thead>
+                <th>Invoice</th>
+                <th>description</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </thead>
+            <tbody id="document-items">
+                {% for item in details %}
+                    <tr>
+                        <td>{{item.invoice}}</td>
+                        <td>{{item.description}}</td>
+                        <td>{{item.amount}}</td>
+                        <td>
+                            <a class="item-remove" data-url="{% url 'inventory:delete-item' slug=return.slug pk=return.id item_pk=item.pk %}" id="remove-item-{{item.pk}}">
+                                <button type="button" class="btn btn-danger">Remove</button>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+    </div>
 </div>
 {% endblock content %}
 
