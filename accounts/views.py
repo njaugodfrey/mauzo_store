@@ -1,4 +1,9 @@
 from django.shortcuts import render
-from django.views.generic import CreateView, UpdateView
 
 # Create your views here.
+
+
+def accounts_index(request):
+    return render(
+        request, template_name='accounts/accounts_index.html'
+    )

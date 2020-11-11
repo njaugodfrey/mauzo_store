@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for invoice in invoices %}
+<option value="{{ unit.pk }}">{{ invoice.invoice_number }}</option>
+{% endfor %}

@@ -1,4 +1,5 @@
 {% extends "accounts/accountsbase.html" %}
+{% load static %}
 
 {% block title %}
 Accounts - {{receipt.receipt_number}}
@@ -14,6 +15,9 @@ Accounts - {{receipt.receipt_number}}
         {% else %}
         No description
         {% endif %}
+        <p id="customer-id" data-inquiry-url="{% url 'accounts:get-invoices' %}">
+            {{receipt.customer.pk}}
+        </p>
     </div>
     <div class="receipt-form">
         <form method="post">
@@ -35,7 +39,8 @@ Accounts - {{receipt.receipt_number}}
 {% endblock content %}
 
 {% block javascript %}
-<script>
-    $("#related_invoice").select2();
-</script>
+    <script type="text/javascript" src="{% static 'scripts/cashreceipt.js' %}"></script>
+    <script>
+        $("#related_invoice").select2();
+    </script>
 {% endblock javascript %}

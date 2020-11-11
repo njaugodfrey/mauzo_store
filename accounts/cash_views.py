@@ -9,6 +9,7 @@ from django.db.models import Sum
 from .forms import CashReceiptForm, ReceiptItemsForm
 from .cash_models import CashReceipt, CashReceiptItems
 from customer.models import Customer
+from sales.models import SalesInvoice
 
 
 def cash_receipts_list(request):
@@ -81,4 +82,13 @@ def view_cash_receipt(request, pk, slug):
     return render(
         request, template_name='accounts/view_cash_receipt.html',
         context=context
+    )
+
+
+def filter_invoices(request):
+    customer_id = request.GET.get('customer')
+    invoices = SalesInvoice.objects.filter(customer=customer_id).select_related()
+    return render(
+        request, template_name='accounts/rcpt_invoices_list.html',
+        context={'invoices': invoices}
     )

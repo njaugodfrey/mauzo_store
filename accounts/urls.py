@@ -1,10 +1,13 @@
 from django.urls import path
 
-from . import cash_views
+from . import cash_views, views
 
 app_name = 'accounts'
 
 urlpatterns = [
+    path(
+        '', views.accounts_index, name='accounts-index'
+    ),
     # cash receipts
     path(
         'cash-receipt/all/', cash_views.cash_receipts_list,
@@ -21,5 +24,9 @@ urlpatterns = [
     path(
         'cash-receipt/view/<slug>-<pk>/',
         cash_views.view_cash_receipt, name='cash-receipt-detail'
+    ),
+    path(
+        'get-invoices/', cash_views.filter_invoices,
+        name='get-invoices'
     ),
 ]
