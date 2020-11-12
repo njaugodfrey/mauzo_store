@@ -25,8 +25,8 @@ Accounts - {{receipt.receipt_number}}
             </div>
         </div>
     </div>
-    <div class="receipt-form container-fluid mb-5">
-        <form method="post">
+    <div class="container-fluid mb-5">
+        <form id="document-form" method="post">
             <div class="row">
                 {% csrf_token %}
                 
@@ -36,7 +36,7 @@ Accounts - {{receipt.receipt_number}}
                         {{field}}
                     </div>
                 {% endfor %}
-                <input type="submit" class="btn btn-primary" value="Add item" data-url="" id="add_item" /> 
+                <input type="submit" class="btn btn-primary" value="Add item" data-url="{% url 'accounts:add-receipt-items' receipt.slug receipt.id %}" id="add_item" /> 
             </div>
         </form>
     </div>

@@ -29,4 +29,8 @@ urlpatterns = [
         'get-invoices/', cash_views.filter_invoices,
         name='get-invoices'
     ),
+    path(
+        'cash-receipt/<slug>-<pk>/add-item/',
+        cash_views.add_receipt_items, name='add-receipt-items'
+    ),
 ]

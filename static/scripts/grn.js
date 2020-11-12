@@ -18,10 +18,6 @@ $(document).ready(function () {
 
     function add_item() {
         console.log("create post is working!") // sanity check
-        console.log($('#item-name').val());
-        console.log($('#item-quantity').val());
-        console.log($('#item-price').val());
-        console.log($('#uom').val());
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
         $.ajax({

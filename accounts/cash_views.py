@@ -94,3 +94,46 @@ def filter_invoices(request):
         request, template_name='accounts/rcpt_invoices_list.html',
         context={'invoices': invoices}
     )
+
+
+def add_receipt_items(request, pk, slug):
+    if request.method == 'POST':
+        invoice = request.POST.get('invoice')
+        description = request.POST.get('description')
+        amount = request.POST.get('amount')
+
+        if invoice is '\'\'':
+            invoice = None
+        else:
+            invoice = SalesInvoice.objects.get(id=invoice)
+
+        receipt_item = CashReceiptItems(
+            receipt_ref=CashReceipt.objects.get(id=pk),
+            invoice=invoice,
+            description=description,
+            amount=amount
+        )
+        receipt_item.save()
+
+        receipt_total = receipt_item.receipt_ref.total + amount
+        receipt_total.save()
+
+        response_data = {
+            'result': 'Item saved successfully',
+            'invoice': receipt_item.invoice,
+            'description': receipt_item.description,
+            'amount': receipt_item.amount
+        }
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type='application/json'
+        )
+
+    else:
+        return HttpResposne(
+            json.dumps({
+                'error': 'input unsuccessful'
+            }),
+            content_type='application/json'
+        )
