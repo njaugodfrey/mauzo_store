@@ -15,12 +15,15 @@ Accounts - {{receipt.receipt_number}}
                 <p class="card-text" id="customer-id" data-inquiry-url="{% url 'accounts:get-invoices' %}">
                     {{receipt.customer.pk}}
                 </p>
-                <pclass="card-text">
+                <p class="card-text">
                     {% if receipt.description %}
                         {{receipt.description}}
                     {% else %}
                         No description
                     {% endif %}
+                </p>
+                <p class="card-text">
+                    {{receipt.total}}
                 </p>
             </div>
         </div>
@@ -55,7 +58,7 @@ Accounts - {{receipt.receipt_number}}
                         <td>{{item.description}}</td>
                         <td>{{item.amount}}</td>
                         <td>
-                            <a class="item-remove" data-url="{% url 'inventory:delete-item' slug=return.slug pk=return.id item_pk=item.pk %}" id="remove-item-{{item.pk}}">
+                            <a class="item-remove" data-url="{% url 'accounts:remove-receipt-item' slug=receipt.slug pk=receipt.id item_pk=item.id %}" id="remove-item-{{item.pk}}">
                                 <button type="button" class="btn btn-danger">Remove</button>
                             </a>
                         </td>
@@ -69,6 +72,6 @@ Accounts - {{receipt.receipt_number}}
 {% block javascript %}
     <script type="text/javascript" src="{% static 'scripts/cashreceipt.js' %}"></script>
     <script>
-        $("#related_invoice").select2();
+        $("#related-invoice").select2();
     </script>
 {% endblock javascript %}

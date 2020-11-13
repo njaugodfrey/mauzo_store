@@ -33,4 +33,8 @@ urlpatterns = [
         'cash-receipt/<slug>-<pk>/add-item/',
         cash_views.add_receipt_items, name='add-receipt-items'
     ),
+    path(
+        'cash-receipt/<slug>-<pk>/remove-item/<item_pk>',
+        cash_views.cancel_receipt_item, name='remove-receipt-item'
+    ),
 ]

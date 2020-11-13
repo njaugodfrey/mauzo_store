@@ -1,4 +1,20 @@
 $(document).ready(function () {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    };
+
     function get_invoices() {
         console.log('working')
         var url = $("#customer-id").data('inquiry-url');
@@ -19,20 +35,20 @@ $(document).ready(function () {
         console.log($('#related_invoice').val());
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        if ($('#related_invoice').val() == '') {
+        /* if ($('#related_invoice').val() == '') {
             var ivoice = 0
         } else {
             var invoice = $('#related_invoice').val()
-        }
+        } */
 
         $.ajax({
             url: $("#add_item").data('url'),
             headers: {'X-CSRFToken': csrftoken},
             type: 'POST',
             data: {
-                invoice: invoice,
-                description: $('#receipt_description').val(),
-                amount: $('#receipt_amount').val()
+                invoice: $('#related-invoice').val(),
+                description: $('#receipt-description').val(),
+                amount: $('#receipt-amount').val()
             },
             success: function (json) {
                 document.getElementById("document-form").reset();
@@ -46,5 +62,33 @@ $(document).ready(function () {
         event.preventDefault();
         console.log("form submitted!")  // sanity check
         add_item();
+    });
+
+    function cancel_item(item_primary_key) {
+        const csrftoken = getCookie('csrftoken')
+        if (confirm('Are you sure you want to remove this item?')==true){
+            console.log($(".item-remove").data('url'));
+
+            $.ajax({
+                url: $(".item-remove").data('url'),
+                headers: {'X-CSRFToken': csrftoken},
+                type : "DELETE",
+                data : { item_pk : item_primary_key },
+                success: function (json) {
+                    console.log('Item removed successfully');
+                },
+                error : function(xhr,errmsg,err) {
+                    // Show an error
+                    $('#results').html("<div class='alert-box alert radius' data-alert>"+
+                    "Oops! We have encountered an error. <a href='#' class='close'>&times;</a></div>"); // add error to the dom
+                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                }
+            });
+        };
+    };
+    $("#document-items").on('click', 'a[id^=remove-item-]', function(){
+        var item_primary_key = $(this).attr('id').split('-')[2];
+        console.log(item_primary_key) // sanity check
+        cancel_item(item_primary_key);
     });
 });

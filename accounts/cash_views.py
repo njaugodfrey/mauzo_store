@@ -102,28 +102,33 @@ def add_receipt_items(request, pk, slug):
         description = request.POST.get('description')
         amount = request.POST.get('amount')
 
-        if invoice is '\'\'':
-            invoice = None
-        else:
-            invoice = SalesInvoice.objects.get(id=invoice)
-
-        receipt_item = CashReceiptItems(
+        if invoice is '':
+            receipt_item = CashReceiptItems(
             receipt_ref=CashReceipt.objects.get(id=pk),
-            invoice=invoice,
+            description=description,
+            amount=amount
+        )
+        else:
+            receipt_item = CashReceiptItems(
+            receipt_ref=CashReceipt.objects.get(id=pk),
+            invoice=SalesInvoice.objects.get(id=invoice),
             description=description,
             amount=amount
         )
         receipt_item.save()
 
-        receipt_total = receipt_item.receipt_ref.total + amount
-        receipt_total.save()
+        receipt_item.receipt_ref.total = float(receipt_item.receipt_ref.total) + float(amount)
+        receipt_item.receipt_ref.save()
 
-        response_data = {
-            'result': 'Item saved successfully',
-            'invoice': receipt_item.invoice,
-            'description': receipt_item.description,
-            'amount': receipt_item.amount
-        }
+        response_data = {}
+        response_data['result'] = 'Item saved successfully'
+        if receipt_item.invoice is None:
+            response_data['invoice'] = 'None'
+        else:
+            response_data['invoice'] = receipt_item.invoice.invoice_number
+
+        response_data['description'] = receipt_item.description
+        response_data['amount'] = receipt_item.amount
 
         return HttpResponse(
             json.dumps(response_data),
@@ -136,4 +141,34 @@ def add_receipt_items(request, pk, slug):
                 'error': 'input unsuccessful'
             }),
             content_type='application/json'
+        )
+
+
+def cancel_receipt_item(request, pk, slug, item_pk):
+    if request.method == 'DELETE':
+        item = CashReceiptItems.objects.get(
+            pk=int(QueryDict(request.body).get('item_pk'))
+        )
+        related_receipt = item.receipt_ref
+        item_amount = item.amount
+        item.delete()
+
+        receipt_obj = CashReceipt.objects.get(pk=related_receipt.pk)
+        receipt_obj.total = float(receipt_obj.total) - float(item_amount)
+        receipt_obj.save()
+
+        response_data = {
+            'msg': 'item removed',
+            'receipt_total': receipt_obj.total
+        }
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+    
+    else:
+        return HttpResponse(
+            json.dumps({"nothing to see": "this isn't happening"}),
+            content_type="application/json"
         )

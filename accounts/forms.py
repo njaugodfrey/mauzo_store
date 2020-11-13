@@ -23,13 +23,13 @@ class ReceiptItemsForm(forms.ModelForm):
         ]
         widgets = {
             'invoice': forms.Select(attrs={
-                'id': 'related_invoice'
+                'id': 'related-invoice'
             }),
             'description': forms.TextInput(attrs={
-                'id': 'receipt_description'
+                'id': 'receipt-description'
             }),
             'amount': forms.NumberInput(attrs={
-                'id': 'receipt_amount'
+                'id': 'receipt-amount'
             })
         }
 
