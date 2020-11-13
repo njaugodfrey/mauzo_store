@@ -80,7 +80,6 @@ $(document).ready(function () {
         const csrftoken = getCookie('csrftoken');
         if (confirm('are you sure you want to remove this item?')==true) {
             console.log($(".item-remove").data('url'));
-            //const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             $.ajax({
                 url : $(".item-remove").data('url'),
                 headers: {'X-CSRFToken': csrftoken},// manually send csrftoken

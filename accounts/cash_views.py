@@ -102,7 +102,7 @@ def add_receipt_items(request, pk, slug):
         description = request.POST.get('description')
         amount = request.POST.get('amount')
 
-        if invoice is '':
+        if invoice == '':
             receipt_item = CashReceiptItems(
             receipt_ref=CashReceipt.objects.get(id=pk),
             description=description,

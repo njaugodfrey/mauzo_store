@@ -35,12 +35,6 @@ $(document).ready(function () {
         console.log($('#related_invoice').val());
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        /* if ($('#related_invoice').val() == '') {
-            var ivoice = 0
-        } else {
-            var invoice = $('#related_invoice').val()
-        } */
-
         $.ajax({
             url: $("#add_item").data('url'),
             headers: {'X-CSRFToken': csrftoken},
@@ -53,7 +47,21 @@ $(document).ready(function () {
             success: function (json) {
                 document.getElementById("document-form").reset();
                 console.log(json);
-                console.log('success')
+                $("#document-items").prepend(
+                    "<tr>",
+                    "<td>"+json.invoice+"</td>",
+                    "<td>"+json.description+"</td>",
+                    "<td>"+json.amount+"</td>",
+                    "<a class='item-remove' data-url='{% url 'inventory:remove-item' slug=receipt.slug pk=receipt.id item_pk=item.pk %}' id='delete-post-"+json.item_id+"'>",
+                        "<button type='button' class='btn btn-danger'>Remove</button>",
+                    "</a>",
+                    "</tr>"
+                );
+            },
+            error : function(xhr,errmsg,err) {
+                $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                    " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
             }
         });
     };
@@ -76,6 +84,7 @@ $(document).ready(function () {
                 data : { item_pk : item_primary_key },
                 success: function (json) {
                     console.log('Item removed successfully');
+                    $('#remove-item-' + item_primary_key).parents("tr").remove(); // hide the item on success
                 },
                 error : function(xhr,errmsg,err) {
                     // Show an error
