@@ -6,6 +6,7 @@ from mauzo.decorators import allowed_user
 from .models import Customer
 from .forms import CustomerForm
 from sales.creditsales import SalesInvoice, InvoiceGoodsReturns
+from accounts.cash_models import CashReceipt
 
 
 # Create your views here.
@@ -30,9 +31,13 @@ def customer_detail(request, pk, slug):
     invoices = SalesInvoice.objects.filter(
         customer=pk
     ).select_related()
+    payments = CashReceipt.objects.filter(
+        customer=pk
+    ).select_related()
     context = {
         'customer': customer,
-        'invoices': invoices
+        'invoices': invoices,
+        'payments': payments
     }
     return render(
         request, template_name='customer/customer_detail.html',

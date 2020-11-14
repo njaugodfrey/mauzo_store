@@ -26,5 +26,10 @@ Customers - {{customer.customer_name}}
     {% for invoice in invoices %}
     {{invoice.invoice_number}}
     {% endfor %}
+    
+    {% for payment in payments %}
+        {{payment.receipt_number}}
+    {% endfor %}
+        
 </div>
 {% endblock customer %}
