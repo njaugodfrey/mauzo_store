@@ -15,9 +15,6 @@ class SalesReceipt(models.Model):
         verbose_name='Receipt number', max_length=20,
         unique=True
     )
-    is_credit = models.BooleanField(
-        verbose_name='To pay', default=False
-    )
     walkin_customer = models.CharField(
         verbose_name='Walk in Customer', null=True,
         blank=True, max_length=20
@@ -32,6 +29,15 @@ class SalesReceipt(models.Model):
     total = models.FloatField(
         verbose_name='Total', blank=True, null=True,
         default=0
+    )
+    is_credit = models.BooleanField(
+        verbose_name='Temporary credit', default=False
+    )
+    is_cleared = models.BooleanField(
+        verbose_name='Cleared', default=False
+    )
+    printed = models.BooleanField(
+        verbose_name='Printed Receipt', default=False
     )
     slug = models.SlugField(
         default=''

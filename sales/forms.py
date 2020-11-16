@@ -35,3 +35,22 @@ class SoldGoodsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['unit_of_measurement'].queryset = inventory.UnitOfMeasurement.objects.none()
+
+
+class ReceiptsFilterForm(forms.Form):
+    start_date = forms.DateTimeField(
+        required=True, label='Start date',
+        input_formats=['%Y/%m/%d %H:%M:%S'],
+        widget=forms.DateTimeInput(attrs={
+            'name': 'sd',
+            'required': True
+        })
+    )
+    close_date = forms.DateTimeField(
+        required=True, label='Close date',
+        input_formats=['%Y/%m/%d %H:%M:%S'],
+        widget=forms.DateTimeInput(attrs={
+            'name': 'cd',
+            'required': True
+        })
+    )

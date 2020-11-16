@@ -44,9 +44,6 @@ class Stock(models.Model):
 
     def __str__(self):
         return '{}'.format(self.stock_name)
-    
-    '''def stock_calculator(self):
-        sales = SalesReceipt.objects.'''
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.stock_name)
@@ -92,6 +89,10 @@ class GoodsReceipt(models.Model):
         verbose_name='Reference', null=False,
         max_length=50
     )
+    supplier_ref = models.CharField(
+        verbose_name='Supplier\'s ref', null=True,
+        max_length=50, blank=True
+    )
     supplier = models.ForeignKey(
         Supplier, on_delete=models.CASCADE,
         null=True, blank=True
@@ -122,6 +123,10 @@ class GoodsReturned(models.Model):
     return_number = models.CharField(
         verbose_name='Reference', null=False,
         max_length=50
+    )
+    remarks = models.TextField(
+        verbose_name='Comments', null=True,
+        blank=True
     )
     supplier = models.ForeignKey(
         Supplier, on_delete=models.CASCADE,
@@ -196,6 +201,10 @@ class StockWriteOn(models.Model):
     write_on_number = models.CharField(
         max_length=50, verbose_name='Number'
     )
+    remarks = models.TextField(
+        verbose_name='Comments', null=True,
+        blank=True
+    )
     input_by = models.ForeignKey(
         User, on_delete=models.CASCADE,
         verbose_name='Input by'
@@ -233,6 +242,10 @@ class StockWriteOff(models.Model):
     )
     write_off_number = models.CharField(
         max_length=50, verbose_name='Number'
+    )
+    remarks = models.TextField(
+        verbose_name='Comments', null=True,
+        blank=True
     )
     input_by = models.ForeignKey(
         User, on_delete=models.CASCADE,

@@ -37,6 +37,14 @@ urlpatterns = [
         'receipts/all/search/', views.search_receipts,
         name='search_receipts'
     ),
+    path(
+        'receipts/all/get/', views.get_receipts,
+        name='get_receipts'
+    ),
+    path(
+        'receipts/all/get/<date1><date2>/print', views.print_gotten_receipts,
+        name='print_get_receipts'
+    ),
     # Sold goods urls
     path(
         'receipt/<str:slug>-<int:pk>/add-item',

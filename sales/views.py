@@ -22,15 +22,65 @@ from mauzo.decorators import allowed_user
 @login_required
 def receipts_list(request):
     receipts = SalesReceipt.objects.all().order_by('-receipt_number')
-    receipts_filter = SalesFilter(request.GET, queryset=receipts)
+    filter_form = ReceiptsFilterForm(request.POST or None)
     context = {
         'all_receipts': receipts,
-        'filter': receipts_filter
+        'filter_form': filter_form
     }
     return render(
         request, template_name='sales/receipts_list.html',
         context=context
     )
+
+
+def get_receipts(request):
+    if 'start_date' and 'close_date' in request.GET:
+        date1 = datetime.strptime(request.GET['start_date'], '%Y-%m-%d %H:%M')
+        date2 = datetime.strptime(request.GET['close_date'], '%Y-%m-%d %H:%M')
+        receipts = SalesReceipt.objects.filter(
+            sale_date__range=[date1, date2]
+        )
+    
+    else:
+        return redirect(
+            'sales:all_receipts'
+        )
+    
+    context = {
+        'receipts': receipts,
+        'date1': date1,
+        'date2': date2
+    }
+    return render(
+        request, template_name='sales/dummy.html',
+        context=context
+    )
+
+
+def print_gotten_receipts(request, date1, date2):
+    date1 = datetime.strptime(date1, '%Y-%m-%d %H:%M:%S')
+    date2 = datetime.strptime(date2, '%Y-%m-%d %H:%M:%S')
+    receipts = SalesReceipt.objects.filter(
+        sale_date__range=[date1, date2]
+    )
+    with open("sales_report.txt", "w") as rcpt:
+            response = HttpResponse()
+            response['content_type'] = 'text/plain'
+            response['Content-Disposition'] = 'attachment; filename=sales_report.txt'
+            response.write('\t Gathee Wholesalers Ltd \n')
+            response.write('Sales report for ' + date1 + ' - ' + date2 + '\n')
+            response.write('Time \t\tNumber \t\tAmount \n')
+            for receipt in receipts:
+                response.write(
+                    str(receipt.sale_date.strftime("%H:%M:%S")) + '\t' + \
+                    receipt.receipt_number + '\t' + \
+                    str(receipt.total) + '\n'
+                )
+
+    context = {
+        'receipts': receipts
+    }
+    return response
 
 
 @login_required

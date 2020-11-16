@@ -5,6 +5,11 @@
 Sales - All receipts
 {% endblock title %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/jquery.datetimepicker.min.css' %}">
+{% endblock style %}
+    
+
 {% block content %}
     <div class="container">
         <a class="mb-4" href="{% url 'sales:new_receipt' %}">
@@ -14,9 +19,10 @@ Sales - All receipts
             <input name="q" type="text" placeholder="Search...">
         </form>
         <div class="receipts-search mt-3">
-            <span>Search for a receipt</span>
-            <form class="mt-1" action="{% url 'sales:search_receipts' %}" method="get">
-                <input name="q" type="text" placeholder="Search...">
+            <form class="mt-1" action="{% url 'sales:get_receipts' %}" method="get">
+                {% csrf_token %}
+                {{filter_form}}
+                <input type="submit" value="Submit">
             </form>
         </div>
         <table class="table mt-2">
@@ -66,3 +72,18 @@ Sales - All receipts
         </table>
     </div>
 {% endblock content %}
+
+{% block javascript %}
+<script type="text/javascript" src="{% static 'scripts/jquery.datetimepicker.full.min.js' %}"></script>
+<script>
+    $(function () {
+      $("#id_start_date").datetimepicker({
+        format: 'Y-m-d H:i',
+      });
+      $("#id_close_date").datetimepicker({
+        format: 'Y-m-d H:i',
+      });
+    });
+</script>
+{% endblock javascript %}
+    
