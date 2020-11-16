@@ -33,13 +33,15 @@ def receipts_list(request):
     )
 
 
-def get_receipts(request):
+@login_required
+@allowed_user(['Accounts'])
+def filter_receipts(request):
     if 'start_date' and 'close_date' in request.GET:
         date1 = datetime.strptime(request.GET['start_date'], '%Y-%m-%d %H:%M')
         date2 = datetime.strptime(request.GET['close_date'], '%Y-%m-%d %H:%M')
         receipts = SalesReceipt.objects.filter(
             sale_date__range=[date1, date2]
-        )
+        ).order_by('sale_date')
     
     else:
         return redirect(
@@ -52,14 +54,18 @@ def get_receipts(request):
         'date2': date2
     }
     return render(
-        request, template_name='sales/dummy.html',
+        request, template_name='sales/search_results.html',
         context=context
     )
 
 
+@login_required
+@allowed_user(['Accounts'])
 def print_gotten_receipts(request, date1, date2):
-    date1 = datetime.strptime(date1, '%Y-%m-%d %H:%M:%S')
-    date2 = datetime.strptime(date2, '%Y-%m-%d %H:%M:%S')
+    first = date1[0:19]
+    second = date1[19:]
+    date1 = datetime.strptime(first, '%Y-%m-%d %H:%M:%S')
+    date2 = datetime.strptime(second, '%Y-%m-%d %H:%M:%S')
     receipts = SalesReceipt.objects.filter(
         sale_date__range=[date1, date2]
     )
@@ -68,7 +74,7 @@ def print_gotten_receipts(request, date1, date2):
             response['content_type'] = 'text/plain'
             response['Content-Disposition'] = 'attachment; filename=sales_report.txt'
             response.write('\t Gathee Wholesalers Ltd \n')
-            response.write('Sales report for ' + date1 + ' - ' + date2 + '\n')
+            response.write('Sales report for ' + str(date1) + ' - ' + str(date2) + '\n')
             response.write('Time \t\tNumber \t\tAmount \n')
             for receipt in receipts:
                 response.write(
@@ -81,52 +87,6 @@ def print_gotten_receipts(request, date1, date2):
         'receipts': receipts
     }
     return response
-
-
-@login_required
-def search_receipts(request):
-    if 'q' in request.GET:
-        query = request.GET['q']
-
-        receipts = SalesReceipt.objects.filter(
-            receipt_number__icontains=query
-        ).order_by('sale_date')
-    
-    context = {'receipts': receipts}
-    return render(
-        request, context=context,
-        template_name='sales/search_results.html'
-    )
-
-
-@login_required
-@allowed_user(['Accounts'])
-def filter_receipts(request):
-    if 'q' in request.GET:
-        query = request.GET['q']
-
-        receipts = SalesReceipt.objects.filter(
-            receipt_number__icontains=query
-        ).order_by('sale_date')
-
-        with open("sales_report.txt", "w") as rcpt:
-            response = HttpResponse()
-            response['content_type'] = 'text/plain'
-            response['Content-Disposition'] = 'attachment; filename=sales_report.txt'
-            response.write('\t Gathee Wholesalers Ltd \n')
-            response.write('Sales report for ' + query + '\n')
-            response.write('Time \t\tNumber \t\tAmount \n')
-            for receipt in receipts:
-                response.write(
-                    str(receipt.sale_date.strftime("%H:%M:%S")) + '\t' + \
-                    receipt.receipt_number + '\t' + \
-                    str(receipt.total) + '\n'
-                )
-
-        context = {
-            'receipts': receipts
-        }
-        return response
 
 
 @login_required

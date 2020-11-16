@@ -10,6 +10,9 @@ Sales - Receipts search
 {% endfor %}
 
 {% block content %}
+<a href="{% url 'sales:print_filtered_receipts' date1=date1 date2=date2 %}">
+    <button type="button" class="btn btn-dark">Print</button>
+</a>
 <table class="table mt-2">
     <thead class="thead-dark">
         <tr>
