@@ -1,4 +1,5 @@
 import json, csv, math
+from tabulate import tabulate
 from win32printing import Printer
 
 from django.http import HttpResponse, QueryDict
@@ -35,7 +36,7 @@ def receipts_list(request):
 
 @login_required
 @allowed_user(['Accounts'])
-def get_receipts(request):
+def filter_receipts(request):
     if 'start_date' and 'close_date' in request.GET:
         date1 = datetime.strptime(request.GET['start_date'], '%Y-%m-%d %H:%M')
         date2 = datetime.strptime(request.GET['close_date'], '%Y-%m-%d %H:%M')
@@ -61,7 +62,7 @@ def get_receipts(request):
 
 @login_required
 @allowed_user(['Accounts'])
-def print_gotten_receipts(request, date1, date2):
+def print_filtered_receipts(request, date1, date2):
     first = date1[0:19]
     second = date1[19:]
     date1 = datetime.strptime(first, '%Y-%m-%d %H:%M:%S')
@@ -329,16 +330,25 @@ def print_sales_receipt(request, pk):
         response = HttpResponse()
         response['content_type'] = 'text/plain'
         response['Content-Disposition'] = 'attachment; filename=receipt.txt'
-        response.writelines(
+
+        response.write(company.company_name + '\n',)
+        header_table = [
+            [company.telephone_1, company.telephone_2],
+            ['PIN: ', company.kra_pin],
+            ['VAT', company.kra_vat]
+        ]
+        response.write(tabulate(header_table))
+
+        '''response.writelines(
             [company.company_name + '\n',
              company.postal_address + '        \n',
              company.telephone_1 + '        ',
              company.telephone_2 + '\n',
              'PIN: ' + company.kra_pin + '        ',
              'VAT: ' + company.kra_vat + '\n'],
-        )
+        )'''
         response.writelines([
-            'Number: ' + receipt.receipt_number + '\n',
+            '\nNumber: ' + receipt.receipt_number + '\n',
             'Created: ' + str(receipt.sale_date.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
             'Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
         ])
@@ -346,20 +356,38 @@ def print_sales_receipt(request, pk):
             response.write('Customer: ' + receipt.walkin_customer + '\n')
         response.write('-----------------------------------------\n')
         response.write('-------------- Tax Receipt --------------\n')
-        response.write('-----------------------------------------\n')
-        response.writelines([
+        #response.write('-----------------------------------------\n')
+        '''response.writelines([
             'Code       Qty      Price        Tax         Amount\n'
-        ])
+        ])'''
+
+        items_table = []
         for item in items:
-            response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
+            items_table.append(
+                [item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name]
+            )
+            items_table.append(
+                [
+                    item.product.stock_code,
+                    str(item.quantity),
+                    str(item.price),
+                    str(item.product.stock_vat_code.vat_code),
+                    str(item.amount)
+                ]
+            )
+            '''response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
             response.writelines([
                 item.product.stock_code + '       ',
                 str(item.quantity) + '      ',
                 str(item.price).rjust(5) + '   ',
                 str(item.product.stock_vat_code.vat_code) + '   ',
                 str(item.amount).rjust(10) + '\n'
-            ])
-        response.write('-----------------------------------------\n')
+            ])'''
+        response.write(tabulate(
+            items_table,
+            headers=['Code', 'Qty', 'Price', 'Tax', 'Amount']
+        ))
+        #response.write('-----------------------------------------\n')
         response.write('Total:        ' + str(receipt.total) + '\n')
         #for vat in tax:
         response.write('Tax:          ' + str(round(tax.get('vat__sum'), 2)) + '\n')

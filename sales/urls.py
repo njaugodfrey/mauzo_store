@@ -34,7 +34,7 @@ urlpatterns = [
         name='filter_receipts'
     ),
     path(
-        'receipts/all/filter/<date1><date2>/print', views.print_gotten_receipts,
+        'receipts/all/filter/<date1><date2>/print', views.print_filtered_receipts,
         name='print_filtered_receipts'
     ),
     # Sold goods urls
