@@ -33,6 +33,8 @@ def receipts_list(request):
     )
 
 
+@login_required
+@allowed_user(['Accounts'])
 def get_receipts(request):
     if 'start_date' and 'close_date' in request.GET:
         date1 = datetime.strptime(request.GET['start_date'], '%Y-%m-%d %H:%M')
@@ -57,6 +59,8 @@ def get_receipts(request):
     )
 
 
+@login_required
+@allowed_user(['Accounts'])
 def print_gotten_receipts(request, date1, date2):
     date1 = datetime.strptime(date1, '%Y-%m-%d %H:%M:%S')
     date2 = datetime.strptime(date2, '%Y-%m-%d %H:%M:%S')
@@ -275,7 +279,7 @@ def add_receipt_items(request, pk, slug):
                 quantity=quantity,
                 unit_of_measurement=UnitOfMeasurement.objects.get(pk=uom),
                 price=sprice,
-                vat=round(float(vat) * float(sprice)) / float(100 + float(vat)),
+                vat=round(float(vat) * float(quantity)* float(sprice)) / float(100 + float(vat)),
                 amount=float(quantity) * float(sprice)
             )
             receipt_item.save()
