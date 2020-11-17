@@ -30,7 +30,8 @@ Sales - {{invoice.invoice_number}}
         
 
         <div class="alert alert-success text-center mt-4 mb-4" role="alert" id="receipt-total">
-            Total: {{invoice.total}}
+            <p>Customer: {{invoice.customer.customer_name}}</p>
+            <p>Total: {{invoice.total}}</p>
         </div>
 
         <table class="table table-bordered">
@@ -42,7 +43,7 @@ Sales - {{invoice.invoice_number}}
                 <th>Tax</th>
                 <th>Actions</th>
             </thead>
-            <tbody id="receipt-items"  data-url="{% url 'sales:remove-product' %}">
+            <tbody id="receipt-items"  data-url="{% url 'sales:invoice-remove-product' %}">
                 {% for item in items %}
                     <tr>
                         <td>{{item.product.stock_name}}</td>

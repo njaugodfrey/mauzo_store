@@ -85,7 +85,11 @@ urlpatterns = [
         creditsales.add_invoice_items, name='invoice-new-product'
     ),
     path(
-        'receipt/remove-item/',
+        'invoices/remove-item/',
         creditsales.remove_invoice_items, name='invoice-remove-product'
+    ),
+    path(
+        'invoices/print/decoy/<int:pk>/', creditsales.print_invoice,
+        name='invoice-print-decoy'
     ),
 ]

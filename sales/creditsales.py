@@ -1,4 +1,5 @@
 import json
+from tabulate import tabulate
 
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, redirect, get_object_or_404
@@ -93,7 +94,7 @@ def add_invoice_items(request, pk, slug):
                 quantity=quantity,
                 unit_of_measurement=UnitOfMeasurement.objects.get(pk=uom),
                 price=sprice,
-                vat=round(float(vat) * float(sprice)) / float(100 + float(vat)),
+                vat=round(float(vat) * float(quantity) * float(sprice)) / float(100 + float(vat)),
                 amount=float(quantity) * float(sprice)
             )
             invoice_item.save()
@@ -226,3 +227,61 @@ def invoice_sales_returns(request, pk, slug, item_pk):
             json.dumps({"nothing to see": "action not successful"}),
             content_type="application/json"
         )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def print_invoice(request, pk):
+    company = Company.objects.get(pk=1)
+    invoice = SalesInvoice.objects.get(pk=pk)
+    items = InvoiceGoods.objects.filter(invoice_ref=pk).select_related()
+    tax = InvoiceGoods.objects.filter(invoice_ref=pk).select_related().aggregate(Sum('vat'))
+    user = request.user
+    customer = Customer.objects.get(customer_code=invoice.customer.customer_code)
+    print_time = datetime.now()
+
+    with open('invoice.txt', 'w') as invc:
+        response = HttpResponse()
+        response['content_type'] = 'text/plain'
+        response['Content-Disposition'] = 'attachment; filename=invoice.txt'
+        response.write(company.company_name + '\n',)
+        header_table = [
+            [
+                company.postal_address + '\n',
+                company.telephone_1 + '\n',
+                company.telephone_2 + '\n',
+                'PIN: ' + company.kra_pin + '\n',
+                'VAT: ' + company.kra_vat + '\n'
+            ],
+            [
+                str(customer.customer_code) + '\n',
+                str(customer.customer_name) + '\n',
+                str(customer.customer_full_name) + '\n',
+                str(customer.phone_number) + '\n',
+                str(customer.balance) + '\n'
+            ]
+        ]
+        response.write(tabulate(header_table))
+
+        response.write('\n*** Tax Invoice ***\n')
+
+        items_table = []
+        for item in items:
+            items_table.append(
+                [
+                    item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name,
+                    item.product.stock_code,
+                    str(item.quantity),
+                    str(item.price),
+                    str(item.product.stock_vat_code.vat_code),
+                    str(item.amount)
+                ]
+            )
+        response.write(tabulate(items_table))
+
+        response.write('-----------------------------------------\n')
+        response.write('Total:        ' + str(invoice.total) + '\n')
+        #for vat in tax:
+        response.write('Tax:          ' + str(round(tax.get('vat__sum'), 2)) + '\n')
+    
+    return response
