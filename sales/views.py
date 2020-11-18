@@ -24,9 +24,11 @@ from mauzo.decorators import allowed_user
 def receipts_list(request):
     receipts = SalesReceipt.objects.all().order_by('-receipt_number')
     filter_form = ReceiptsFilterForm(request.POST or None)
+    report_form = ReportForm(request.POST or None)
     context = {
         'all_receipts': receipts,
-        'filter_form': filter_form
+        'filter_form': filter_form,
+        'report_form': report_form
     }
     return render(
         request, template_name='sales/receipts_list.html',
@@ -88,6 +90,15 @@ def print_filtered_receipts(request, date1, date2):
         'receipts': receipts
     }
     return response
+
+
+@login_required
+@allowed_user(['Accounts'])
+def check_receipt(request, pk):
+    """
+    docstring
+    """
+    pass
 
 
 @login_required
@@ -355,8 +366,10 @@ def print_sales_receipt(request, pk):
         if receipt.walkin_customer:
             response.write('Customer: ' + receipt.walkin_customer + '\n')
         response.write('-----------------------------------------\n')
-        response.write('-------------- Tax Receipt --------------\n')
-        #response.write('-----------------------------------------\n')
+        if receipt.printed:
+            response.write('-----------  Receipt Duplicate  ---------\n')
+        else:
+            response.write('-------------- Tax Receipt --------------\n')
         '''response.writelines([
             'Code       Qty      Price        Tax         Amount\n'
         ])'''
@@ -407,6 +420,10 @@ def print_sales_receipt(request, pk):
         response.write('Salesman: ' + str(receipt.salesman).upper() + '\n')
         if receipt.walkin_customer:
             response.write('Customer: ' + receipt.walkin_customer + '\n')
+        
+
+        receipt.printed = True
+        receipt.save()
 
     return response
 

@@ -180,4 +180,6 @@ $(document).ready(function () {
         console.log(item_primary_key) // sanity check
         sales_returns(item_primary_key);
     });
+
+    
 })

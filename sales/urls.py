@@ -5,10 +5,23 @@ from . import views, creditsales
 app_name = 'sales'
 
 urlpatterns = [
-    # sales receipts
+    # sales receipts general
     path(
         'receipts/all/', views.receipts_list, name='all_receipts'
     ),
+    path(
+        'receipts/all/filter/', views.filter_receipts,
+        name='filter_receipts'
+    ),
+    path(
+        'receipts/all/filter/<date1><date2>/print', views.print_filtered_receipts,
+        name='print_filtered_receipts'
+    ),
+    path(
+        'receipts/check/<pk>/', views.check_receipt,
+        name='check-receipt'
+    ),
+    # sales receipts functionality
     path(
         'receipts/new-receipt/', views.create_sales_receipt,
         name='new_receipt'
@@ -28,14 +41,6 @@ urlpatterns = [
     path(
         'invoices/new-invoice/<pk>', views.create_sales_invoice,
         name='new_topay'
-    ),
-    path(
-        'receipts/all/filter/', views.filter_receipts,
-        name='filter_receipts'
-    ),
-    path(
-        'receipts/all/filter/<date1><date2>/print', views.print_filtered_receipts,
-        name='print_filtered_receipts'
     ),
     # Sold goods urls
     path(
