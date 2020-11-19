@@ -18,8 +18,16 @@ urlpatterns = [
         name='print_filtered_receipts'
     ),
     path(
-        'receipts/check/<pk>/', views.check_receipt,
-        name='check-receipt'
+        'receipts/clear/', views.clear_receipt,
+        name='clear-receipt'
+    ),
+    path(
+        'receipts/credit/', views.credit_receipt,
+        name='credit-receipt'
+    ),
+    path(
+        'receipts/all/filter/', views.make_report,
+        name='make-report'
     ),
     # sales receipts functionality
     path(

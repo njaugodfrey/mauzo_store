@@ -15,13 +15,24 @@ Sales - All receipts
         <a class="mb-4" href="{% url 'sales:new_receipt' %}">
             <button type="button" class="btn btn-dark">New receipt</button>
         </a>
-        <div class="receipts-search mt-3">
-            <form class="mt-1" action="{% url 'sales:filter_receipts' %}" method="get">
-                {% csrf_token %}
-                {{filter_form}}
-                <input type="submit" value="Submit">
-            </form>
-        </div>
+        
+        {% ifequal user.groups.all.0.name 'Accounts'  %} 
+            <div class="receipts-search mt-3">
+                <form class="mt-1" action="{% url 'sales:filter_receipts' %}" method="get">
+                    {% csrf_token %}
+                    {{filter_form}}
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+            <div class="report mt-3">
+                <form class="mt-1" action="{% url 'sales:make-report' %}" method="get">
+                    {% csrf_token %}
+                    {{filter_form.start_date.label}}: {{filter_form.start_date}}
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+        {% endifequal %}
+        
         <table class="table mt-2">
             <thead class="thead-dark">
                 <tr>
@@ -32,7 +43,7 @@ Sales - All receipts
                     <th scope="col">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="receipts-list" data-clear="{% url 'sales:clear-receipt' %}" data-credit="{% url 'sales:credit-receipt' %}">
                 {% for receipt in all_receipts %}
                     <tr>
                         <th scope="row">
@@ -51,66 +62,50 @@ Sales - All receipts
                         </td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                <a class="mr-3" href="{% url 'sales:sales_returns' receipt.slug receipt.id%}">
+                                <a class="mr-3" href="{% url 'sales:sales_returns' receipt.slug receipt.id %}">
                                     <button type="button" class="btn btn-primary">
                                             Void
                                     </button>
                                 </a>
-                                <a href="{% url 'sales:update_receipt' receipt.slug receipt.id%}">
+                                <a class="mr-3" href="{% url 'sales:update_receipt' receipt.slug receipt.id %}">
                                     <button type="button" class="btn btn-primary">
                                             Update
                                     </button>
                                 </a>
-                            </div>
-                            <!-- <div class="form-check form-check-inline" id="">
-                                <input class="form-check-input" type="checkbox" id="cleared-{{receipt.id}}" value="option1">
-                                <label class="form-check-label" for="cleared-{{receipt.id}}">Cleared</label>
-                                <input class="form-check-input" type="checkbox" id="temporary_credit-{{receipt.id}}" value="option2">
-                                <label class="form-check-label" for="temporary_credit-{{receipt.id}}">Temp credit</label>
-                            </div> -->
-                            <!-- Button to Open the Modal -->
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-                                Check
-                            </button>
-                            
-                            
+                                <a class="mr-3" href="{% url 'sales:clear-receipt' %}" id="clear-item-{{receipt.pk}}">
+                                    <button type="button" class="btn btn-primary">
+                                            
+                                            {% if receipt.is_cleared %}
+                                                Cleared
+                                            {% else %}
+                                                Clear
+                                            {% endif %}
+                                                
+                                    </button>
+                                </a>
+                                <a class="mr-3" href="{% url 'sales:credit-receipt' %}" id="credit-item-{{receipt.pk}}">
+                                    <button type="button" class="btn btn-primary">
+                                            
+                                            {% if receipt.is_credit %}
+                                                To Pay
+                                            {% else %}
+                                                Credit
+                                            {% endif %}
+                                                
+                                    </button>
+                                </a>
+                            </div>                            
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    <!-- The Modal -->
-    <div class="modal" id="myModal">
-        <div class="modal-dialog">
-        <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-            <h4 class="modal-title">Check Receipt</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body">
-            <form method="post">
-                {{report_form.as_table}}
-            </form>
-            </div>
-
-            <!-- Modal footer -->
-            <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-
-        </div>
-        </div>
-    </div>
 {% endblock content %}
 
 {% block javascript %}
 <script type="text/javascript" src="{% static 'scripts/jquery.datetimepicker.full.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'scripts/saleslist.js' %}"></script>
 <script>
     $(function () {
       $("#id_start_date").datetimepicker({

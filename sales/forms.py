@@ -54,9 +54,4 @@ class ReceiptsFilterForm(forms.Form):
             'required': True
         })
     )
-
-
-class ReportForm(forms.ModelForm):
-    class Meta:
-        model = SalesReceipt
-        fields = ['is_cleared', 'is_credit']
+    

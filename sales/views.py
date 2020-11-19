@@ -24,7 +24,7 @@ from mauzo.decorators import allowed_user
 def receipts_list(request):
     receipts = SalesReceipt.objects.all().order_by('-receipt_number')
     filter_form = ReceiptsFilterForm(request.POST or None)
-    report_form = ReportForm(request.POST or None)
+    report_form = ReceiptsFilterForm(request.POST or None)
     context = {
         'all_receipts': receipts,
         'filter_form': filter_form,
@@ -94,11 +94,86 @@ def print_filtered_receipts(request, date1, date2):
 
 @login_required
 @allowed_user(['Accounts'])
-def check_receipt(request, pk):
+def clear_receipt(request):
     """
     docstring
     """
-    pass
+    if request.method == 'POST':
+        receipt = SalesReceipt.objects.get(
+            pk=int(QueryDict(request.body).get('receipt_pk'))
+        )
+        if receipt.is_cleared:
+            receipt.is_cleared = False
+            receipt.save()
+            response_data = {"msg": 'Done'}
+        else:
+            receipt.is_cleared = True
+            receipt.save()
+            response_data = {"msg": 'Done'}
+        return HttpResponse(
+            json.dumps(response_data)
+        )
+    
+    else:
+        return HttpResponse(
+            json.dumps(
+                {'msg': 'failed'}
+            )
+        )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def credit_receipt(request):
+    """
+    docstring
+    """
+    if request.method == 'POST':
+        receipt = SalesReceipt.objects.get(
+            pk=int(QueryDict(request.body).get('receipt_pk'))
+        )
+        if receipt.is_credit:
+            receipt.is_credit = False
+            receipt.save()
+            response_data = {'msg': 'done'}
+        else:
+            receipt.is_credit = True
+            receipt.save()
+            response_data = {'msg': 'done'}
+        return HttpResponse(
+            json.dumps(response_data)
+        )
+    
+    else:
+        return HttpResponse(
+            json.dumps(
+                {'msg': 'failed'}
+            )
+        )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def make_report(request):
+    if 'start_date' in request.GET:
+        date1 = datetime.strptime(request.GET['start_date'], '%Y-%m-%d %H:%M')
+        receipts = SalesReceipt.objects.filter(
+            sale_date__range=[date1]
+        ).order_by('sale_date')
+    
+    else:
+        return redirect(
+            'sales:all_receipts'
+        )
+    
+    context = {
+        'receipts': receipts,
+        'date1': date1,
+    }
+    return render(
+        request, template_name='sales/dummy.html',
+        context=context
+    )
 
 
 @login_required
