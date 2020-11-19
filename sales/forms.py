@@ -54,4 +54,14 @@ class ReceiptsFilterForm(forms.Form):
             'required': True
         })
     )
+
+
+class DateReportForm(forms.Form):
+    report_date = forms.DateTimeField(
+        required=True, label='Report date',
+        input_formats=['%Y/%m/%d %H:%M:%S'],
+        widget=forms.DateTimeInput(attrs={
+            'required': True
+        })
+    )
     

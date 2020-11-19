@@ -27,7 +27,7 @@ Sales - All receipts
             <div class="report mt-3">
                 <form class="mt-1" action="{% url 'sales:make-report' %}" method="get">
                     {% csrf_token %}
-                    {{filter_form.start_date.label}}: {{filter_form.start_date}}
+                    {{report_form}}
                     <input type="submit" value="Submit">
                 </form>
             </div>
@@ -112,6 +112,9 @@ Sales - All receipts
         format: 'Y-m-d H:i',
       });
       $("#id_close_date").datetimepicker({
+        format: 'Y-m-d H:i',
+      });
+      $("#id_report_date").datetimepicker({
         format: 'Y-m-d H:i',
       });
     });

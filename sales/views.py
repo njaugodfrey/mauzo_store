@@ -24,7 +24,7 @@ from mauzo.decorators import allowed_user
 def receipts_list(request):
     receipts = SalesReceipt.objects.all().order_by('-receipt_number')
     filter_form = ReceiptsFilterForm(request.POST or None)
-    report_form = ReceiptsFilterForm(request.POST or None)
+    report_form = DateReportForm(request.POST or None)
     context = {
         'all_receipts': receipts,
         'filter_form': filter_form,
@@ -155,8 +155,8 @@ def credit_receipt(request):
 @login_required
 @allowed_user(['Accounts'])
 def make_report(request):
-    if 'start_date' in request.GET:
-        date1 = datetime.strptime(request.GET['start_date'], '%Y-%m-%d %H:%M')
+    if 'report_date' in request.GET:
+        date1 = datetime.strptime(request.GET['report_date'], '%Y-%m-%d %H:%M')
         receipts = SalesReceipt.objects.filter(
             sale_date__range=[date1]
         ).order_by('sale_date')
@@ -167,8 +167,7 @@ def make_report(request):
         )
     
     context = {
-        'receipts': receipts,
-        'date1': date1,
+        'receipts': receipts
     }
     return render(
         request, template_name='sales/dummy.html',

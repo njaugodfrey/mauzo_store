@@ -26,7 +26,7 @@ urlpatterns = [
         name='credit-receipt'
     ),
     path(
-        'receipts/all/filter/', views.make_report,
+        'receipts/all/report/', views.make_report,
         name='make-report'
     ),
     # sales receipts functionality
