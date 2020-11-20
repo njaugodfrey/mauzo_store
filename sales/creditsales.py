@@ -105,6 +105,11 @@ def add_invoice_items(request, pk, slug):
             invoice.total = invoice.total + item_amount
             invoice.save()
 
+            # update customer balance
+            customer = get_object_or_404(Customer, pk=invoice.customer.pk)
+            customer.balance = customer.balance + item_amount
+            customer.save()
+
             # update stock quantity
             stock_unit = UnitOfMeasurement.objects.get(pk=uom)
             sold_stock = float(stock_unit.base_quantity) * float(quantity)
@@ -160,6 +165,11 @@ def remove_invoice_items(request):
         invoice = SalesInvoice.objects.get(pk=item.invoice_ref.pk)
         invoice.total = invoice.total - item.amount
         invoice.save()
+
+        # update customer balance
+        customer = get_object_or_404(Customer, pk=invoice.customer.pk)
+        customer.balance = customer.balance - item.amount
+        customer.save()
 
         response_data = {'msg': 'Item removed.'}
 
