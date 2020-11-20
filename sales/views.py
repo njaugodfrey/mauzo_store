@@ -444,36 +444,20 @@ def print_sales_receipt(request, pk):
             response.write('-----------  Receipt Duplicate  ---------\n')
         else:
             response.write('-------------- Tax Receipt --------------\n')
-        '''response.writelines([
+        response.writelines([
             'Code       Qty      Price        Tax         Amount\n'
-        ])'''
+        ])
 
         items_table = []
         for item in items:
-            items_table.append(
-                [item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name]
-            )
-            items_table.append(
-                [
-                    item.product.stock_code,
-                    str(item.quantity),
-                    str(item.price),
-                    str(item.product.stock_vat_code.vat_code),
-                    str(item.amount)
-                ]
-            )
-            '''response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
+            response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
             response.writelines([
                 item.product.stock_code + '       ',
                 str(item.quantity) + '      ',
                 str(item.price).rjust(5) + '   ',
                 str(item.product.stock_vat_code.vat_code) + '   ',
                 str(item.amount).rjust(10) + '\n'
-            ])'''
-        response.write(tabulate(
-            items_table,
-            headers=['Code', 'Qty', 'Price', 'Tax', 'Amount']
-        ))
+            ])
         #response.write('-----------------------------------------\n')
         response.write('Total:        ' + str(receipt.total) + '\n')
         #for vat in tax:

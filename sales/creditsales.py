@@ -189,8 +189,8 @@ def invoice_sales_returns(request, pk, slug, item_pk):
         response_data = {}
 
         return_item = InvoiceGoodsReturns(
-            receipt_ref=SalesInvoice.objects.get(
-                pk=return_invoice.receipt_ref.pk
+            invoice_ref=SalesInvoice.objects.get(
+                pk=return_invoice.invoice_ref.pk
             ),
             sale_item_ref=InvoiceGoods.objects.get(pk=item.pk),
             product=Stock.objects.get(pk=return_invoice.product.pk),
@@ -227,6 +227,24 @@ def invoice_sales_returns(request, pk, slug, item_pk):
             json.dumps({"nothing to see": "action not successful"}),
             content_type="application/json"
         )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def invoice_returns_detail(request, slug, pk):
+    invoice = get_object_or_404(SalesInvoice, pk=pk)
+    items = InvoiceGoods.objects.filter(invoice_ref=invoice.id)
+    returned_items = InvoiceGoodsReturns.objects.filter(invoice_ref=invoice.id).select_related()
+
+    context = {
+        'invoice': invoice,
+        'items': items,
+        'returned_items': returned_items
+    }
+    return render(
+        request, 'sales/credit_sales_returns.html',
+        context=context
+    )
 
 
 @login_required

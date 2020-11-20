@@ -65,15 +65,15 @@ urlpatterns = [
     ),
     # sales returns/void
     path(
-        'returns/<str:slug>-<int:pk>/return-item/<int:item_pk>/',
+        'receipt/returns/<str:slug>-<int:pk>/return-item/<int:item_pk>/',
         views.sales_returns, name='return-product'
     ),
     path(
-        'returns/<str:slug>-<int:pk>/void',
+        'receipt/returns/<str:slug>-<int:pk>/void',
         views.sales_returns_detail, name='sales_returns'
     ),
     path(
-        'returns/print/return/<int:pk>/',
+        'receipt/returns/print/return/<int:pk>/',
         views.print_sales_returns, name='print-return'
     ),
     path(
@@ -104,5 +104,17 @@ urlpatterns = [
     path(
         'invoices/print/<int:pk>/', creditsales.print_invoice,
         name='invoice-print'
+    ),
+    path(
+        'invoice/returns/<str:slug>-<int:pk>/return-item/<int:item_pk>/',
+        creditsales.invoice_sales_returns, name='return-invoice-item'
+    ),
+    path(
+        'invoice/returns/<str:slug>-<int:pk>/return',
+        creditsales.invoice_returns_detail, name='credit-note-details'
+    ),
+    path(
+        'invoice/returns/print/return/<int:pk>/',
+        views.print_sales_returns, name='print-credit-note'
     ),
 ]

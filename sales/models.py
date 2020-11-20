@@ -175,7 +175,7 @@ class InvoiceGoods (models.Model):
         verbose_name='Amount', default=0
     )
     credit_note = models.BooleanField(
-        verbose_name='Void item sale', null=True,
+        verbose_name='Credit sale', null=True,
         blank=True
     )
 
@@ -186,7 +186,7 @@ class InvoiceGoodsReturns(models.Model):
         related_name='credit_items_set', null=True
     )
     sale_item_ref = models.ForeignKey(
-        SoldGoods, on_delete=models.CASCADE,
+        InvoiceGoods, on_delete=models.CASCADE,
         null=True, blank=True, related_name='invoice_items'
     )
     product = models.ForeignKey(
