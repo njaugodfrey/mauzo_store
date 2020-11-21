@@ -423,15 +423,6 @@ def print_sales_receipt(request, pk):
             ['VAT', company.kra_vat]
         ]
         response.write(tabulate(header_table))
-
-        '''response.writelines(
-            [company.company_name + '\n',
-             company.postal_address + '        \n',
-             company.telephone_1 + '        ',
-             company.telephone_2 + '\n',
-             'PIN: ' + company.kra_pin + '        ',
-             'VAT: ' + company.kra_vat + '\n'],
-        )'''
         response.writelines([
             '\nNumber: ' + receipt.receipt_number + '\n',
             'Created: ' + str(receipt.sale_date.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
@@ -444,6 +435,7 @@ def print_sales_receipt(request, pk):
             response.write('-----------  Receipt Duplicate  ---------\n')
         else:
             response.write('-------------- Tax Receipt --------------\n')
+        response.write('-----------------------------------------\n')
         response.writelines([
             'Code       Qty      Price        Tax         Amount\n'
         ])
@@ -458,26 +450,34 @@ def print_sales_receipt(request, pk):
                 str(item.product.stock_vat_code.vat_code) + '   ',
                 str(item.amount).rjust(10) + '\n'
             ])
-        #response.write('-----------------------------------------\n')
+        response.write('-----------------------------------------\n')
         response.write('Total:        ' + str(receipt.total) + '\n')
         #for vat in tax:
-        response.write('Tax:          ' + str(round(tax.get('vat__sum'), 2)) + '\n')
+        response.write('VAT:               ' + str(round(tax.get('vat__sum'), 2)) + '\n')
+        exclusive = (tax.get('vat__sum'))/0.14
+        response.write('Taxable exclusive: ' + str(
+            round(exclusive, 2)
+        ) + '\n')
+        exempt = receipt.total - (exclusive + tax.get('vat__sum'))
+        response.write('Exempt:            ' + str(round(exempt, 2)) + '\n')
+        response.write('Total:             ' + str(receipt.total) + '\n')
         response.write('-----------------------------------------\n')
         
         response.write('You were served by: ' + str(receipt.salesman).upper() + '\n')
         response.write('Prices inclusive of VAT where applicable\n\n')
 
         # Duplicate
-        response.write('------------ Receipt Copy ---------------\n')
-        response.write('-----------------------------------------\n')
-        response.write('Receipt No:' + receipt.receipt_number + '\n')
-        response.write(
-            'Sale date: ' + str(receipt.sale_date.strftime("%d/%m/%Y")) + '\n'
-        )
-        response.write('Amount: ' + str(receipt.total) + '\n')
-        response.write('Salesman: ' + str(receipt.salesman).upper() + '\n')
-        if receipt.walkin_customer:
-            response.write('Customer: ' + receipt.walkin_customer + '\n')
+        if receipt.printed == False:
+            response.write('------------ Receipt Copy ---------------\n')
+            response.write('-----------------------------------------\n')
+            response.write('Receipt No:' + receipt.receipt_number + '\n')
+            response.write(
+                'Sale date: ' + str(receipt.sale_date.strftime("%d/%m/%Y")) + '\n'
+            )
+            response.write('Amount: ' + str(receipt.total) + '\n')
+            response.write('Salesman: ' + str(receipt.salesman).upper() + '\n')
+            if receipt.walkin_customer:
+                response.write('Customer: ' + receipt.walkin_customer + '\n')
         
 
         receipt.printed = True
@@ -632,16 +632,15 @@ def print_sales_returns(request, pk):
         response = HttpResponse()
         response['content_type'] = 'text/plain'
         response['Content-Disposition'] = 'attachment; filename=void_receipt.txt'
-        response.writelines(
-            [company.company_name + '\n',
-             company.postal_address + '        \n',
-             company.telephone_1 + '        ',
-             company.telephone_2 + '\n',
-             'PIN: ' + company.kra_pin + '        ',
-             'VAT: ' + company.kra_vat + '\n'],
-        )
+        response.write(company.company_name + '\n',)
+        header_table = [
+            [company.telephone_1, company.telephone_2],
+            ['PIN: ', company.kra_pin],
+            ['VAT', company.kra_vat]
+        ]
+        response.write(tabulate(header_table))
         response.writelines([
-            'Number: ' + receipt.receipt_number + '\n',
+            '\nNumber: ' + receipt.receipt_number + '\n',
             'Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
         ])
         if receipt.walkin_customer:
@@ -659,12 +658,18 @@ def print_sales_returns(request, pk):
                 str(item.quantity) + '      ',
                 str(item.price).rjust(5) + '   ',
                 str(item.product.stock_vat_code.vat_code) + '   ',
-                str(item.amount).rjust(10) + '\n'
+                str(item.amount).ljust(20) + '\n'
             ])
         response.write('-----------------------------------------\n')
-        response.write('Total:        ' + str(void_total.get('amount__sum')) + '\n')
         #for vat in tax:
         response.write('Tax:          ' + str(round(tax.get('vat__sum'), 2)) + '\n')
+        inclusive = (tax.get('vat__sum'))/0.14
+        response.write('Taxable exclusive: ' + str(
+            round(inclusive, 2)
+        ) + '\n')
+        exempt = void_total.get('amount__sum') - (inclusive + tax.get('vat__sum'))
+        response.write('Exclusive:         ' + str(round(exempt, 2)) + '\n')
+        response.write('Total:        ' + str(void_total.get('amount__sum')) + '\n')
         response.write('-----------------------------------------\n')
         
         response.write('You were served by: ' + str(receipt.salesman).upper() + '\n')

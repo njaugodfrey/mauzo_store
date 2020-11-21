@@ -272,44 +272,55 @@ def print_invoice(request, pk):
         response = HttpResponse()
         response['content_type'] = 'text/plain'
         response['Content-Disposition'] = 'attachment; filename=invoice.txt'
-        response.write(company.company_name + '\n',)
+        f'{"Hi": <16} StackOverflow!'
+        response.write(f'{"": <25}' + company.company_name +'\n')
         header_table = [
             [
-                company.postal_address + '\n',
-                company.telephone_1 + '\n',
-                company.telephone_2 + '\n',
-                'PIN: ' + company.kra_pin + '\n',
-                'VAT: ' + company.kra_vat + '\n'
+                company.postal_address,
+                company.telephone_1 + '/' + company.telephone_2,
             ],
             [
-                str(customer.customer_code) + '\n',
-                str(customer.customer_name) + '\n',
-                str(customer.customer_full_name) + '\n',
-                str(customer.phone_number) + '\n',
-                str(customer.balance) + '\n'
+                'PIN: ' + company.kra_pin + '\n',
+                'VAT: ' + company.kra_vat + '\n'
             ]
         ]
-        response.write(tabulate(header_table))
+        response.write(tabulate(header_table, tablefmt='plain') + '\n')
+        customer_table = [
+            ['Customer', customer.customer_name],
+            ['Phone', customer.phone_number],
+            ['Balance', customer.balance],
+        ]
+        response.write(tabulate(customer_table, tablefmt='plain') + '\n')
 
-        response.write('\n*** Tax Invoice ***\n')
+        response.write(f'{"": <25}' + '*** Tax Invoice ***\n')
 
         items_table = []
         for item in items:
             items_table.append(
                 [
-                    item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name,
                     item.product.stock_code,
+                    item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name,
                     str(item.quantity),
                     str(item.price),
-                    str(item.product.stock_vat_code.vat_code),
+                    str(item.vat),
                     str(item.amount)
                 ]
             )
-        response.write(tabulate(items_table))
+        response.write(tabulate(
+            items_table,
+            headers=['Code', 'Description', 'Qty', 'Price', 'Tax', 'Amount']
+        ))
 
-        response.write('-----------------------------------------\n')
-        response.write('Total:        ' + str(invoice.total) + '\n')
+        response.write('\n-----------------------------------------\n')
         #for vat in tax:
-        response.write('Tax:          ' + str(round(tax.get('vat__sum'), 2)) + '\n')
+        response.write('VAT:               ' + str(round(tax.get('vat__sum'), 2)) + '\n')
+        exclusive = (tax.get('vat__sum'))/0.14
+        response.write('Taxable exclusive: ' + str(
+            round(exclusive, 2)
+        ) + '\n')
+        exempt = invoice.total - (exclusive + tax.get('vat__sum'))
+        response.write('Exempt:            ' + str(round(exempt, 2)) + '\n')
+        response.write('Total:             ' + str(invoice.total) + '\n')
+
     
     return response
