@@ -443,12 +443,19 @@ def print_sales_receipt(request, pk):
         items_table = []
         for item in items:
             response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
-            response.writelines([
+            '''response.writelines([
                 item.product.stock_code + '       ',
                 str(item.quantity) + '      ',
-                str(item.price).rjust(5) + '   ',
+                str(item.price) + '   ',
                 str(item.product.stock_vat_code.vat_code) + '   ',
                 str(item.amount).rjust(10) + '\n'
+            ])'''
+            response.writelines([
+                "{:<5}       {:<4}     {:<7}       {:<1}          {:<10}\n".format(
+                    item.product.stock_code, str(int(item.quantity)),
+                    str(item.price), str(item.product.stock_vat_code.vat_code),
+                    str(item.amount)
+                )
             ])
         response.write('-----------------------------------------\n')
         response.write('Total:        ' + str(receipt.total) + '\n')
