@@ -92,27 +92,27 @@ WSGI_APPLICATION = 'mauzo.wsgi.application'
 }"""
 
 # postgres configuration
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'gathee',
-        'USER': 'njau',
-        'PASSWORD': 'gathee',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
-}
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'test',
+#         'NAME': 'gathee',
 #         'USER': 'njau',
 #         'PASSWORD': 'gathee',
 #         'HOST': 'localhost',
 #         'PORT': '5432'
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'test',
+        'USER': 'njau',
+        'PASSWORD': 'gathee',
+        'HOST': 'localhost',
+        'PORT': '5432'
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

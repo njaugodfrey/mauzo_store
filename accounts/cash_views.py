@@ -104,21 +104,27 @@ def add_receipt_items(request, pk, slug):
 
         if invoice == '':
             receipt_item = CashReceiptItems(
-            receipt_ref=CashReceipt.objects.get(id=pk),
-            description=description,
-            amount=amount
-        )
+                receipt_ref=CashReceipt.objects.get(id=pk),
+                description=description,
+                amount=amount
+            )
         else:
             receipt_item = CashReceiptItems(
-            receipt_ref=CashReceipt.objects.get(id=pk),
-            invoice=SalesInvoice.objects.get(id=invoice),
-            description=description,
-            amount=amount
-        )
+                receipt_ref=CashReceipt.objects.get(id=pk),
+                invoice=SalesInvoice.objects.get(id=invoice),
+                description=description,
+                amount=amount
+            )
         receipt_item.save()
 
+        # update receipt total
         receipt_item.receipt_ref.total = float(receipt_item.receipt_ref.total) + float(amount)
         receipt_item.receipt_ref.save()
+
+        #update customer balance
+        customer_obj = receipt_item.receipt_ref.customer
+        customer_obj.balance = customer_obj.balance - float(amount)
+        customer_obj.save()
 
         response_data = {}
         response_data['result'] = 'Item saved successfully'
@@ -156,6 +162,11 @@ def cancel_receipt_item(request, pk, slug, item_pk):
         receipt_obj = CashReceipt.objects.get(pk=related_receipt.pk)
         receipt_obj.total = float(receipt_obj.total) - float(item_amount)
         receipt_obj.save()
+
+        #update customer balance
+        customer_obj = receipt_obj.customer
+        customer_obj.balance = customer_obj.balance + float(item_amount)
+        customer_obj.save()
 
         response_data = {
             'msg': 'item removed',
