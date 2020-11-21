@@ -8,23 +8,27 @@ Sales - {{receipt.receipt_number}}
 {% block receipt %}
     <div class="container">
         <div class="container-fluid">
-            <form id="receipt-form" data-units-url="{% url 'inventory:uom-list' %}" data-price-url="{% url 'sales:unit-values' %}">
-                <div class="row">
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="form-group col-4">
-                        <label class="col-12">{{ field.label }}</label>
-                        {{ field }}
+            
+            {% if receipt.printed == False %}
+                <form id="receipt-form" data-units-url="{% url 'inventory:uom-list' %}" data-price-url="{% url 'sales:unit-values' %}">
+                    <div class="row">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="form-group col-4">
+                            <label class="col-12">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                        {% endfor %}
+                        <div class="form-group col-4">
+                            <label class="col-12">Selling price</label>
+                            <span id="price"></span>
+                        </div>
+                        <div id="results"></div> <!-- errors go here -->
+                        <input type="submit" class="btn btn-primary" value="Add item" data-url="{% url 'sales:new-product' receipt.slug receipt.id %}" id="add_item" />
                     </div>
-                    {% endfor %}
-                    <div class="form-group col-4">
-                        <label class="col-12">Selling price</label>
-                        <span id="price"></span>
-                    </div>
-                    <div id="results"></div> <!-- errors go here -->
-                    <input type="submit" class="btn btn-primary" value="Add item" data-url="{% url 'sales:new-product' receipt.slug receipt.id %}" id="add_item" />
-                </div>
-            </form>
+                </form>
+            {% endif %}
+                
         </div>
         
         <div class="">
