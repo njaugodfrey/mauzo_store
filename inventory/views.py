@@ -59,14 +59,19 @@ def create_stock(request):
         # stock code generator
         last_stock = Stock.objects.all().order_by('stock_code').last()
         letter_slicer = obj.stock_name
-        if not last_stock:
+        '''if not last_stock:
             obj.stock_code = str(letter_slicer[0:1]) + '0001'
         else:
             stock_code = last_stock.stock_code
             stock_int = int(stock_code[2:6])
             new_stock_int = stock_int + 1
             new_stock_code = str(letter_slicer[0:1]) + str(new_stock_int).zfill(4)
-            obj.stock_code = new_stock_code
+            obj.stock_code = new_stock_code'''
+
+        if not last_stock:
+            obj.stock_code = '1'.zfill(4)
+        else:
+            obj.stock_code = str(int(last_stock.stock_code) + 1).zfill(4)
 
         #obj.stock_code = random.randint(1000, 9999)
         obj.save()

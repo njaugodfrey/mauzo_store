@@ -23,6 +23,13 @@ Inventory - Units
     </div>
 {% endblock inventory %}
 
+{% block javascript %}
+<script type="text/javascript">
+    $("#id_stock").select2();
+</script>
+{% endblock javascript %}
+    
+
 <h2>Add new or update unit</h2>
 <form class="form", action="", method="POST", enctype="multipart/form-data">
     {% csrf_token %}

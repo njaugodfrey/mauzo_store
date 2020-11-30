@@ -7,7 +7,7 @@ class StockCreateForm(forms.ModelForm):
         model = models.Stock
         fields = [
             'stock_name', 'stock_supplier', 'quantity',
-            'stock_vat_code', 'unit_quantity'
+            'stock_vat_code', 'unit_name', 'unit_quantity'
         ]
 
 
@@ -18,6 +18,9 @@ class UnitCreateForm(forms.ModelForm):
             'unit_name', 'unit_description', 'base_quantity',
             'stock', 'purchase_price', 'selling_price'
         ]
+        widgets = {
+            'unit_description': forms.TextInput
+        }
 
 
 class GoodsReceiptForm(forms.ModelForm):

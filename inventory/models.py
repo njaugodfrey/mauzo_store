@@ -22,7 +22,7 @@ class Stock(models.Model):
         help_text='Minimum amount of quantity in an item'
     )
     unit_name = models.CharField(
-        verbose_name='Unit name', default='unit',
+        verbose_name='Base unit name', default='unit',
         max_length=10
     )
     stock_supplier = models.ManyToManyField(

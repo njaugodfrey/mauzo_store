@@ -28,7 +28,7 @@ Inventory
                     <td><a href="{% url 'inventory:stock_detail' item.slug item.id %}">{{item.stock_name}}</a></td>
                     <td>{{item.purchase_price}}</td>
                     <td>{{item.selling_price_1}}</td>
-                    <td>{{item.quantity}}</td>
+                    <td>{{item.quantity}} - {{item.unit_name}}</td>
                     <td>{{item.stock_vat_code.vat_code}}</td>
                 </tr>
             {% endfor %}
