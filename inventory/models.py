@@ -81,6 +81,21 @@ class UnitOfMeasurement(models.Model):
         return '{}'.format(self.unit_name)
 
 
+class StockCardEntry(models.Model):
+    stock = models.ForeignKey(
+        Stock, on_delete=models.CASCADE
+    )
+    document = models.CharField(
+        max_length=250
+    )
+    quantity = models.FloatField()
+    unit = models.ForeignKey(
+        UnitOfMeasurement, on_delete=models.CASCADE
+    )
+    price = models.FloatField()
+    amount = models.FloatField()
+
+
 class GoodsReceipt(models.Model):
     receipt_date = models.DateTimeField(
         verbose_name='Date', auto_now_add=True

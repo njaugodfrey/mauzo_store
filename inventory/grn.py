@@ -8,7 +8,8 @@ from django.contrib.auth.decorators import login_required
 from .models import (
     GoodsReceipt, ReceivedGoods,
     GoodsReturned, ReturnedGoods,
-    Stock, UnitOfMeasurement
+    Stock, UnitOfMeasurement,
+    StockCardEntry
 )
 from .forms import (
     GoodsReceiptForm, GoodsReturnsForm,
@@ -101,7 +102,7 @@ def add_receipt_items(request, pk, slug):
             document_ref=GoodsReceipt.objects.get(id=pk),
             stock=Stock.objects.get(pk=item),
             quantity=quantity,
-            unit_of_measurement= UnitOfMeasurement.objects.get(pk=unit),
+            unit_of_measurement=UnitOfMeasurement.objects.get(pk=unit),
             price=price,
             amount=float(quantity) * float(price)
         )
@@ -109,8 +110,8 @@ def add_receipt_items(request, pk, slug):
 
         # update unit prices
         item_unit = UnitOfMeasurement.objects.get(pk=unit)
-        item_unit.purchase_price = price
-        item_unit.save()
+        """item_unit.purchase_price = price
+        item_unit.save()"""
 
         # update the stock quantity
         stock_item = Stock.objects.get(pk=item)
@@ -122,6 +123,17 @@ def add_receipt_items(request, pk, slug):
         receipt_total = GoodsReceipt.objects.get(id=pk)
         receipt_total.total = receipt_total.total  + (float(quantity) * float(price))
         receipt_total.save()
+
+        # log in stock card
+        stock_card = StockCardEntry(
+            stock=Stock.objects.get(pk=item),
+            document=GoodsReceipt.objects.get(id=pk).receipt_number,
+            quantity=float(quantity) * float(item_unit.base_quantity),
+            unit=item_unit,
+            price=price,
+            amount=float(quantity) * float(item_unit.base_quantity) * float(price)
+        )
+        stock_card.save()
 
         # data to respond with
         response_data['result'] = 'Item saved successfully'

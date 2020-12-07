@@ -5,6 +5,7 @@ from inventory import models
 # Register your models here.
 
 admin.site.register(models.Stock)
+admin.site.register(models.StockCardEntry)
 admin.site.register(models.GoodsReceipt)
 admin.site.register(models.GoodsReturned)
 admin.site.register(models.UnitOfMeasurement)

@@ -11,7 +11,7 @@ Inventory - {{item.stock_name}}
         <h6 class="card-subtitle mb-2 text-muted">{{item.stock_code}}</h6>
         <p class="card-text">
             <ul class="list-group">
-                <li class="list-group-item">Available quantity: {{item.quantity}}{{item.unit_name}}</li>
+                <li class="list-group-item">Available quantity: {{item.quantity}} {{item.unit_name}}</li>
                 <li class="list-group-item">{{item.stock_vat_code.code_name}}--{{item.stock_vat_code.code_percentage}}</li>
             </ul>
         </p>
@@ -30,8 +30,8 @@ Inventory - {{item.stock_name}}
 </div>
 
 <div style="float: right;">
-    {% for received in received_items %}
-    {{received.document_ref.receipt_number}}
+    {% for item in card %}
+    {{item.document}}
     {% endfor %}
 </div>
 {% endblock inventory %}

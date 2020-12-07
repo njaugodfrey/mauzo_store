@@ -1,13 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, QueryDict
-from django.utils.timezone import datetime
 from django.contrib.auth.decorators import login_required
 
-import json, csv
-
-from .models import *
-from .forms import *
+from .models import (
+    Stock, UnitOfMeasurement, ReceivedGoods,
+    StockCardEntry
+)
+from .forms import StockCreateForm, UnitCreateForm
 from mauzo.decorators import allowed_user
 
 
@@ -18,8 +16,9 @@ from mauzo.decorators import allowed_user
 @login_required
 @allowed_user(['Accounts'])
 def stocks_list(request):
-    context = {}
-    context['all_items'] = Stock.objects.order_by('stock_code').all()
+    context = {
+        'all_items': Stock.objects.order_by('stock_code').all()
+    }
     return render(
         request, template_name='inventory/inventory_list.html',
         context=context
@@ -38,10 +37,14 @@ def stock_detail(request, pk, slug):
     units = UnitOfMeasurement.objects.filter(
         stock=pk
     ).select_related()
+    card = StockCardEntry.objects.filter(
+        stock=pk
+    ).select_related()
     context = {
         'item': item,
         'units': units,
-        'received_items': received
+        'received_items': received,
+        'card': card
     }
     return render(
         request, 'inventory/item_detail.html',
@@ -73,7 +76,7 @@ def create_stock(request):
         else:
             obj.stock_code = str(int(last_stock.stock_code) + 1).zfill(4)
 
-        #obj.stock_code = random.randint(1000, 9999)
+        # obj.stock_code = random.randint(1000, 9999)
         obj.save()
         return redirect(
             'inventory:stock_detail',
