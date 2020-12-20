@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 
 from .models import (
     StockWriteOn, StockWriteOff, Stock,
-    GoodsWrittenOn, GoodsWrittenOff, UnitOfMeasurement
+    GoodsWrittenOn, GoodsWrittenOff, UnitOfMeasurement,
+    StockCardEntry
 )
 from .forms import WriteOnForm, WriteOffForm
 from mauzo.decorators import allowed_user
@@ -95,6 +96,19 @@ def add_write_on_items(request, pk, slug):
         stock_item.quantity = stock_item.quantity + received_stock
         stock_item.save()
 
+        # log in stock card
+        stock_card = StockCardEntry(
+            stock=Stock.objects.get(pk=item),
+            document=StockWriteOn.objects.get(id=pk).write_on_number,
+            quantity=float(quantity) * float(item_unit.base_quantity),
+            unit=item_unit,
+            price=0,
+            amount=0
+        )
+        stock_card.save()
+        write_on_item.log_number = stock_card.pk
+        write_on_item.save()
+
         # data to respond with
         response_data = {
             'result': 'Item saved successfully',
@@ -123,6 +137,8 @@ def remove_writeon_item(request, pk, slug, item_pk):
         )
         item_product = item.stock
         item_unit = item.unit_of_measurement
+        entry = StockCardEntry.objects.get(pk=item.log_number)
+        entry.delete()
         item.delete()
         stock_obj = Stock.objects.get(pk=item_product.pk)
         stock_obj_quantity = stock_obj.quantity
@@ -226,6 +242,19 @@ def add_write_off_item(request, pk, slug):
         stock_item.quantity = stock_item.quantity - stock_writen_off
         stock_item.save()
 
+        # log in stock card
+        stock_card = StockCardEntry(
+            stock=Stock.objects.get(pk=item),
+            document=StockWriteOff.objects.get(id=pk).write_off_number,
+            quantity=-(float(quantity) * float(item_unit.base_quantity)),
+            unit=item_unit,
+            price=0,
+            amount=0
+        )
+        stock_card.save()
+        write_off_item.log_number = stock_card.pk
+        write_off_item.save()
+
         # data to respond with
         response_data = {
             'result': 'Item saved successfully',
@@ -255,6 +284,8 @@ def remove_write_off_item(request, pk, slug, item_pk):
         )
         item_product = item.stock
         item_unit = item.unit_of_measurement
+        entry = StockCardEntry.objects.get(pk=item.log_number)
+        entry.delete()
         item.delete()
         stock_obj = Stock.objects.get(pk=item_product.pk)
         stock_obj_quantity = stock_obj.quantity

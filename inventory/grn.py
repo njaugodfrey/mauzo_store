@@ -134,6 +134,8 @@ def add_receipt_items(request, pk, slug):
             amount=float(quantity) * float(item_unit.base_quantity) * float(price)
         )
         stock_card.save()
+        receipt_item.log_number = stock_card.pk
+        receipt_item.save()
 
         # data to respond with
         response_data['result'] = 'Item saved successfully'
@@ -167,6 +169,8 @@ def remove_receipt_items(request, pk, slug, item_pk):
         item_unit = item.unit_of_measurement
         item_total = item.amount
         receipt = item.document_ref
+        entry = StockCardEntry.objects.get(pk=item.log_number)
+        entry.delete()
         item.delete()
 
         # update stock quantity
@@ -293,6 +297,19 @@ def add_returns_items(request, pk, slug):
         stock_item.quantity = stock_item.quantity - returned_stock
         stock_item.save()
 
+        # log in stock card
+        stock_card = StockCardEntry(
+            stock=Stock.objects.get(pk=item),
+            document=GoodsReturned.objects.get(id=pk).return_number,
+            quantity=-(float(quantity) * float(item_unit.base_quantity)),
+            unit=item_unit,
+            price=-unit_price,
+            amount=-float(quantity) * float(item_unit.base_quantity) * float(unit_price)
+        )
+        stock_card.save()
+        return_item.log_number = stock_card.pk
+        return_item.save()
+
         # update returns total
         return_total = GoodsReturned.objects.get(id=pk)
         return_total.total = return_total.total + (float(quantity) * float(unit_price))
@@ -328,6 +345,8 @@ def remove_returns_items(request, pk, slug, item_pk):
         )
         item_stock = item.stock
         item_unit = item.unit_of_measurement
+        entry = StockCardEntry.objects.get(pk=item.log_number)
+        entry.delete()
         item_total = item.amount
         receipt = item.document_ref
         item.delete()

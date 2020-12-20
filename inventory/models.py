@@ -25,6 +25,12 @@ class Stock(models.Model):
         verbose_name='Base unit name', default='unit',
         max_length=10
     )
+    cost_price = models.FloatField(
+        verbose_name='Cost price per unit', default=0
+    )
+    selling_price = models.FloatField(
+        verbose_name='Selling price per unit', default=0
+    )
     stock_supplier = models.ManyToManyField(
         Supplier, blank=True
     )
@@ -185,6 +191,9 @@ class ReceivedGoods(models.Model):
     amount = models.FloatField(
         verbose_name='Amount'
     )
+    log_number = models.IntegerField(
+        null=True
+    )
 
 
 class ReturnedGoods(models.Model):
@@ -206,6 +215,9 @@ class ReturnedGoods(models.Model):
     )
     amount = models.FloatField(
         verbose_name='Amount'
+    )
+    log_number = models.IntegerField(
+        null=True
     )
 
 
@@ -249,6 +261,9 @@ class GoodsWrittenOn(models.Model):
         UnitOfMeasurement,
         on_delete=models.SET_NULL, null=True
     )
+    log_number = models.IntegerField(
+        null=True
+    )
 
 
 class StockWriteOff(models.Model):
@@ -290,4 +305,7 @@ class GoodsWrittenOff(models.Model):
     unit_of_measurement = models.ForeignKey(
         UnitOfMeasurement,
         on_delete=models.SET_NULL, null=True
+    )
+    log_number = models.IntegerField(
+        null=True
     )

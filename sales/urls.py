@@ -1,6 +1,6 @@
-from django.urls import path, include
+from django.urls import path
 
-from . import views, creditsales
+from . import views, creditsales, cashsales
 
 app_name = 'sales'
 
@@ -31,33 +31,29 @@ urlpatterns = [
     ),
     # sales receipts functionality
     path(
-        'receipts/new-receipt/', views.create_sales_receipt,
+        'receipts/new-receipt/', cashsales.create_sales_receipt,
         name='new_receipt'
     ),
     path(
-        'receipts/<slug>-<pk>/details', views.sales_receipt_detail,
+        'receipts/<slug>-<pk>/details', cashsales.sales_receipt_detail,
         name='view_receipt'
     ),
     path(
-        'receipts/<slug>-<pk>/update', views.update_sales_receipt,
+        'receipts/<slug>-<pk>/update', cashsales.update_sales_receipt,
         name='update_receipt'
     ),
     path(
-        'receipts/print/receipt/<int:pk>/', views.print_sales_receipt,
+        'receipts/print/receipt/<int:pk>/', cashsales.print_sales_receipt,
         name='print-receipt'
-    ),
-    path(
-        'invoices/new-invoice/<pk>', views.create_sales_invoice,
-        name='new_topay'
     ),
     # Sold goods urls
     path(
         'receipt/<str:slug>-<int:pk>/add-item',
-        views.add_receipt_items, name='new-product'
+        cashsales.add_receipt_items, name='new-product'
     ),
     path(
         'receipt/remove-item/',
-        views.remove_receipt_items, name='remove-product'
+        cashsales.remove_receipt_items, name='remove-product'
     ),
     path(
         'receipt/unit-of-measurement/price',
@@ -66,19 +62,15 @@ urlpatterns = [
     # sales returns/void
     path(
         'receipt/returns/<str:slug>-<int:pk>/return-item/<int:item_pk>/',
-        views.sales_returns, name='return-product'
+        cashsales.sales_returns, name='return-product'
     ),
     path(
         'receipt/returns/<str:slug>-<int:pk>/void',
-        views.sales_returns_detail, name='sales_returns'
+        cashsales.sales_returns_detail, name='sales_returns'
     ),
     path(
         'receipt/returns/print/return/<int:pk>/',
-        views.print_sales_returns, name='print-return'
-    ),
-    path(
-        'receipts/print/decoy/<int:pk>/', views.print_decoy_receipt,
-        name='print-decoy'
+        cashsales.print_sales_returns, name='print-return'
     ),
     # sales invoices
     path(
@@ -115,6 +107,6 @@ urlpatterns = [
     ),
     path(
         'invoice/returns/print/return/<int:pk>/',
-        views.print_sales_returns, name='print-credit-note'
+        cashsales.print_sales_returns, name='print-credit-note'
     ),
 ]

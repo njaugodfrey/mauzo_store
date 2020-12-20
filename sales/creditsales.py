@@ -9,7 +9,7 @@ from django.db.models import Sum
 
 from .forms import SoldGoodsForm
 from .models import SalesInvoice, InvoiceGoodsReturns, InvoiceGoods
-from inventory.models import Stock, UnitOfMeasurement
+from inventory.models import Stock, UnitOfMeasurement, StockCardEntry
 from accounts.cash_models import CashReceipt
 from companyprofile.models import Company
 from customer.models import Customer
@@ -83,6 +83,7 @@ def add_invoice_items(request, pk, slug):
         uom = request.POST.get('uom')
         vat = Stock.objects.get(pk=item).stock_vat_code.code_percentage
         stock_item = Stock.objects.get(pk=item)
+        item_unit = UnitOfMeasurement.objects.get(pk=uom)
         sprice = UnitOfMeasurement.objects.get(pk=uom).selling_price
         response_data = {}
 
@@ -92,7 +93,7 @@ def add_invoice_items(request, pk, slug):
                 invoice_ref=SalesInvoice.objects.get(id=pk),
                 product=Stock.objects.get(pk=item),
                 quantity=quantity,
-                unit_of_measurement=UnitOfMeasurement.objects.get(pk=uom),
+                unit_of_measurement=item_unit,
                 price=sprice,
                 vat=round(float(vat) * float(quantity) * float(sprice)) / float(100 + float(vat)),
                 amount=float(quantity) * float(sprice)
@@ -109,6 +110,19 @@ def add_invoice_items(request, pk, slug):
             customer = get_object_or_404(Customer, pk=invoice.customer.pk)
             customer.balance = customer.balance + item_amount
             customer.save()
+
+            # log in stock card
+            stock_card = StockCardEntry(
+                stock=Stock.objects.get(pk=item),
+                document=SalesInvoice.objects.get(id=pk).receipt_number,
+                quantity=-float(quantity) * float(item_unit.base_quantity),
+                unit=item_unit,
+                price=sprice,
+                amount=float(quantity) * float(sprice)
+            )
+            stock_card.save()
+            invoice_item.log_number = stock_card.pk
+            invoice_item.save()
 
             # update stock quantity
             stock_unit = UnitOfMeasurement.objects.get(pk=uom)
@@ -152,6 +166,8 @@ def remove_invoice_items(request):
         )
         item_product = item.product
         item_unit = item.unit_of_measurement.base_quantity
+        entry = StockCardEntry.objects.get(pk=item.log_number)
+        entry.delete()
         item.delete()
 
         # update stock quantity
@@ -264,9 +280,7 @@ def print_invoice(request, pk):
     invoice = SalesInvoice.objects.get(pk=pk)
     items = InvoiceGoods.objects.filter(invoice_ref=pk).select_related()
     tax = InvoiceGoods.objects.filter(invoice_ref=pk).select_related().aggregate(Sum('vat'))
-    user = request.user
     customer = Customer.objects.get(customer_code=invoice.customer.customer_code)
-    print_time = datetime.now()
 
     with open('invoice.txt', 'w') as invc:
         response = HttpResponse()

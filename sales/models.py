@@ -81,6 +81,9 @@ class SoldGoods (models.Model):
         verbose_name='Void item sale', null=True,
         blank=True
     )
+    log_number = models.IntegerField(
+        null=True
+    )
 
 
 class SalesReceiptVoid(models.Model):
@@ -111,6 +114,9 @@ class SalesReceiptVoid(models.Model):
     )
     amount = models.FloatField(
         verbose_name='Amount', default=0
+    )
+    log_number = models.IntegerField(
+        null=True
     )
 
     def __str__(self):
@@ -178,6 +184,9 @@ class InvoiceGoods (models.Model):
         verbose_name='Credit sale', null=True,
         blank=True
     )
+    log_number = models.IntegerField(
+        null=True
+    )
 
 
 class InvoiceGoodsReturns(models.Model):
@@ -208,4 +217,7 @@ class InvoiceGoodsReturns(models.Model):
     )
     amount = models.FloatField(
         verbose_name='Amount', default=0
+    )
+    log_number = models.IntegerField(
+        null=True
     )
