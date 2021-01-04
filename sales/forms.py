@@ -64,4 +64,27 @@ class DateReportForm(forms.Form):
             'required': True
         })
     )
-    
+
+
+class CreditInvoiceForm(forms.ModelForm):
+    class Meta:
+        model = CreditNote
+        fields = ['invoice']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['invoice'].queryset = SalesInvoice.objects.none()
+
+
+class CreditValueForm(forms.ModelForm):
+    class Meta:
+        model = ValueCreditItems
+        fields = ['description', 'amount']
+        widgets = {
+            'description': forms.TextInput(attrs={
+                'id': 'item-description'
+            }),
+            'amount': forms.NumberInput(attrs={
+                'id': 'item-amount'
+            })
+        }

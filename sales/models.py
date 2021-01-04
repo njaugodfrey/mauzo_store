@@ -221,3 +221,85 @@ class InvoiceGoodsReturns(models.Model):
     log_number = models.IntegerField(
         null=True
     )
+
+
+class CreditNote(models.Model):
+    cn_date = models.DateTimeField(
+        verbose_name='Date'
+    )
+    cn_number = models.CharField(
+        verbose_name='Credit note number', max_length=20,
+        unique=True
+    )
+    customer = models.ForeignKey(
+        customers.Customer, on_delete=models.CASCADE,
+        verbose_name='Credit customer', null=True, blank=True
+    )
+    invoice = models.ForeignKey(
+        SalesInvoice, on_delete=models.CASCADE,
+        null=True, blank=True
+    )
+    salesman = models.ForeignKey(
+        User, on_delete=models.CASCADE
+    )
+    total = models.FloatField(
+        verbose_name='Total', blank=True, null=True,
+        default=0
+    )
+    slug = models.SlugField(
+        default=''
+    )
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.cn_number)
+        super(CreditNote, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return '{}'.format(self.cn_number)
+
+
+class ValueCreditItems(models.Model):
+    cn_ref = models.ForeignKey(
+        CreditNote, on_delete=models.CASCADE
+    )
+    description = models.CharField(
+        max_length=500, help_text='Describe reason for value'
+    )
+    amount = models.FloatField()
+
+
+class ReturnsCreditItems(models.Model):
+    invoice_ref = models.ForeignKey(
+        SalesInvoice, on_delete=models.CASCADE,
+        related_name='returns_items_set', null=True
+    )
+    cn_ref = models.ForeignKey(
+        CreditNote, on_delete=models.CASCADE
+    )
+    sale_item_ref = models.ForeignKey(
+        InvoiceGoods, on_delete=models.CASCADE,
+        null=True, blank=True, related_name='returns_items'
+    )
+    product = models.ForeignKey(
+        products.Stock, related_name='returns_stock',
+        on_delete=models.CASCADE, null=True
+    )
+    unit_of_measurement = models.ForeignKey(
+        products.UnitOfMeasurement, on_delete=models.CASCADE,
+        null=True
+    )
+    quantity = models.FloatField(
+        verbose_name='Quantity', null=True,
+    )
+    price = models.FloatField(
+        verbose_name='Selling price', null=True
+    )
+    vat = models.FloatField(
+        verbose_name='VAT', default=0
+    )
+    amount = models.FloatField(
+        verbose_name='Amount', default=0
+    )
+    log_number = models.IntegerField(
+        null=True
+    )

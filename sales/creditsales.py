@@ -7,8 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.utils.timezone import datetime
 from django.db.models import Sum
 
-from .forms import SoldGoodsForm
-from .models import SalesInvoice, InvoiceGoodsReturns, InvoiceGoods
+from .forms import SoldGoodsForm, CreditInvoiceForm, CreditValueForm
+from .models import (
+SalesInvoice, InvoiceGoodsReturns, InvoiceGoods,
+CreditNote, ReturnsCreditItems, ValueCreditItems
+)
 from inventory.models import Stock, UnitOfMeasurement, StockCardEntry
 from accounts.cash_models import CashReceipt
 from companyprofile.models import Company
@@ -159,6 +162,7 @@ def add_invoice_items(request, pk, slug):
 
 
 @login_required
+@allowed_user(['Accounts'])
 def remove_invoice_items(request):
     if request.method == 'DELETE':
         item = InvoiceGoods.objects.get(
@@ -338,3 +342,114 @@ def print_invoice(request, pk):
 
     
     return response
+
+
+@login_required
+@allowed_user(['Accounts'])
+def credit_notes_list(request):
+    context = {'all_credit_notes': CreditNote.objects.all()}
+    return render(
+        request, context=context,
+        template_name=''
+    )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def create_credit_note(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    last_cn = CreditNote.objects.all().order_by('cn_number').last()
+    if not last_cn:
+        cn_number = 'CN0001'
+    else:
+        cn_number = last_cn.cn_number
+        cn_int = int(cn_number[2:])
+        new_invoice_int = cn_int + 1
+        new_cn_number = 'CN' + str(new_invoice_int).zfill(4)
+        cn_number = new_cn_number
+    cn_date = datetime.today()
+    salesman = request.user
+
+    new_credit_note = CreditNote(
+        cn_date=cn_date,
+        cn_number=cn_number,
+        customer=customer,
+        salesman=salesman
+    )
+    new_credit_note.save()
+    return redirect(
+        'sales:credit-note-details', slug=new_credit_note.slug,
+        pk=new_credit_note.pk
+    )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def choose_invoice(request, pk, slug):
+    cn = get_object_or_404(CreditNote, pk=pk)
+    inv_form = CreditInvoiceForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        return redirect(
+            'sales:credit-note-details', slug=cn.slug,
+            pk=cn.pk
+        )
+    
+    context = {
+        'form': form
+    }
+    return render(
+        request, template_name='sales/cn_invoice_form.html',
+        context=context
+    )
+
+
+
+@login_required
+@allowed_user(['Accounts'])
+def credit_note_details(request, pk, slug):
+    cn = get_object_or_404(CreditNote, pk=pk)
+    value_items_form = CreditValueForm(request.POST or None)
+    value_items = ValueCreditItems.objects.filter(cn_ref=cn.id).select_related()
+    
+    if cn.invoice:
+        inv_form = CreditInvoiceForm(request.POST or None)
+        inv = SalesInvoice.objects.get(invoice_number=cn.invoice)
+        inv_items = InvoiceGoods.objects.filter(invoice_ref=inv.pk).select_related()
+
+        context = {
+            'credit_note': cn,
+            'invoice': inv,
+            'invoice_form': inv_form,
+            'invoice_items': inv_items,
+            'values_form': value_items_form,
+            'values_items': value_items
+        }
+        return render(
+            request, template_name='sales/credit_note_details.html',
+            context=context
+        )
+    
+    else:
+        context = {
+            'credit_note': cn,
+            'values_form': value_items_form,
+            'values_items': value_items
+        }
+        return render(
+            request, template_name='sales/credit_note_details.html',
+            context=context
+        )
+
+
+@login_required
+@allowed_user(['Accounts'])
+def add_credit_note_items(request, pk, slug):
+    pass
+
+
+@login_required
+@allowed_user(['Accounts'])
+def remove_credit_note_items(request):
+    pass

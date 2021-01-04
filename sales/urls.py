@@ -105,8 +105,31 @@ urlpatterns = [
         'invoice/returns/<str:slug>-<int:pk>/return',
         creditsales.invoice_returns_detail, name='credit-note-details'
     ),
+    # credit notes
     path(
+        'invoice/credit_notes/all/',
+        creditsales.credit_notes_list, name='all-credit-notes'
+    ),
+    path(
+        'invoice/credit_notes/new/<pk>/',
+        creditsales.create_credit_note, name='new-credit-note'
+    ),
+    # use invoice pk here to pass it to credit note
+    path(
+        'invoice/credit_notes/<str:slug>-<int:pk>/details/',
+        creditsales.credit_note_details, name='credit-note-details'
+    ),
+    path(
+        'invoices/credit_notes/<str:slug>-<int:pk>/add-item',
+        creditsales.add_credit_note_items, name='invoice-new-product'
+    ),
+    path(
+        'invoices/credit_notes/remove-item/',
+        creditsales.remove_credit_note_items, name='invoice-remove-product'
+    ),
+]
+
+path(
         'invoice/returns/print/return/<int:pk>/',
         cashsales.print_sales_returns, name='print-credit-note'
     ),
-]

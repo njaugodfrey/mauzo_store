@@ -142,7 +142,7 @@ def add_receipt_items(request, pk, slug):
         )
 
     else:
-        return HttpResposne(
+        return HttpResponse(
             json.dumps({
                 'error': 'input unsuccessful'
             }),

@@ -19,6 +19,7 @@ Customers - {{customer.customer_name}}
         <a href="{% url 'customer:update_customer' customer.slug customer.pk %}" class="card-link">Update</a><br>
         <a href="{% url 'sales:new-invoice' customer.pk %}" class="card-link">New invoice</a><br>
         <a href="{% url 'accounts:receipt-customer' customer.pk %}" class="card-link">Payment receipt</a><br>
+        <a href="{% url 'sales:new-credit-note' customer.pk %}" class="card-link">Credit note</a><br>
     </div>
 </div>
 
