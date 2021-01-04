@@ -1,0 +1,15 @@
+{% extends 'sales/salesbase.html' %}
+
+{% block title %}
+    Credit Notes | Pick invoice
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ inv_form.as_p }}
+        <button type="submit" class="save btn btn-primary">Save</button>
+    </form>
+</div>
+{% endblock content %}
+    

@@ -114,6 +114,10 @@ urlpatterns = [
         'invoice/credit_notes/new/<pk>/',
         creditsales.create_credit_note, name='new-credit-note'
     ),
+    path(
+        'invoice/credit_notes/pick_invoice/<slug>-<pk>/',
+        creditsales.choose_invoice, name='choose-invoice'
+    ),
     # use invoice pk here to pass it to credit note
     path(
         'invoice/credit_notes/<str:slug>-<int:pk>/details/',

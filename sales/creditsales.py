@@ -147,7 +147,7 @@ def add_invoice_items(request, pk, slug):
                 json.dumps(response_data),
                 content_type="application/json"
             )
-
+        
         else:
             return HttpResponse(
                 json.dumps({"nothing to see": "action not successful"}),
@@ -389,15 +389,15 @@ def choose_invoice(request, pk, slug):
     cn = get_object_or_404(CreditNote, pk=pk)
     inv_form = CreditInvoiceForm(request.POST or None)
 
-    if form.is_valid():
-        form.save()
+    if inv_form.is_valid():
+        inv_form.save()
         return redirect(
             'sales:credit-note-details', slug=cn.slug,
             pk=cn.pk
         )
     
     context = {
-        'form': form
+        'inv_form': inv_form
     }
     return render(
         request, template_name='sales/cn_invoice_form.html',
@@ -432,14 +432,9 @@ def credit_note_details(request, pk, slug):
         )
     
     else:
-        context = {
-            'credit_note': cn,
-            'values_form': value_items_form,
-            'values_items': value_items
-        }
-        return render(
-            request, template_name='sales/credit_note_details.html',
-            context=context
+        return redirect(
+            'sales:choose-invoice', slug=cn.slug,
+            pk=cn.pk
         )
 
 
