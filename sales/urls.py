@@ -125,11 +125,11 @@ urlpatterns = [
     ),
     path(
         'invoices/credit_notes/<str:slug>-<int:pk>/add-item',
-        creditsales.add_credit_note_items, name='invoice-new-product'
+        creditsales.add_credit_note_items, name='cn-new-product'
     ),
     path(
         'invoices/credit_notes/remove-item/',
-        creditsales.remove_credit_note_items, name='invoice-remove-product'
+        creditsales.remove_credit_note_items, name='cn-remove-product'
     ),
 ]
 

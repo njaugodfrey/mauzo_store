@@ -117,7 +117,7 @@ def add_invoice_items(request, pk, slug):
             # log in stock card
             stock_card = StockCardEntry(
                 stock=Stock.objects.get(pk=item),
-                document=SalesInvoice.objects.get(id=pk).receipt_number,
+                document=SalesInvoice.objects.get(id=pk).invoice_number,
                 quantity=-float(quantity) * float(item_unit.base_quantity),
                 unit=item_unit,
                 price=sprice,
