@@ -71,10 +71,6 @@ class CreditInvoiceForm(forms.ModelForm):
         model = CreditNote
         fields = ['invoice']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['invoice'].queryset = SalesInvoice.objects.none()
-
 
 class CreditValueForm(forms.ModelForm):
     class Meta:

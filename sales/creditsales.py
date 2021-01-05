@@ -386,11 +386,19 @@ def create_credit_note(request, pk):
 @login_required
 @allowed_user(['Accounts'])
 def choose_invoice(request, pk, slug):
-    cn = get_object_or_404(CreditNote, pk=pk)
+    cn = CreditNote.objects.get(pk=pk)
     inv_form = CreditInvoiceForm(request.POST or None)
 
     if inv_form.is_valid():
-        inv_form.save()
+        obj = inv_form.save(commit=False)
+        cn.invoice = obj.invoice
+        cn.save()
+        return redirect(
+            'sales:credit-note-details', slug=cn.slug,
+            pk=cn.pk
+        )
+    
+    else:
         return redirect(
             'sales:credit-note-details', slug=cn.slug,
             pk=cn.pk
@@ -403,7 +411,6 @@ def choose_invoice(request, pk, slug):
         request, template_name='sales/cn_invoice_form.html',
         context=context
     )
-
 
 
 @login_required
@@ -431,10 +438,15 @@ def credit_note_details(request, pk, slug):
             context=context
         )
     
-    else:
-        return redirect(
-            'sales:choose-invoice', slug=cn.slug,
-            pk=cn.pk
+    elif cn.invoice is None:
+        context = {
+            'credit_note': cn,
+            'values_form': value_items_form,
+            'values_items': value_items
+        }
+        return render(
+            request, template_name='sales/credit_note_details.html',
+            context=context
         )
 
 
