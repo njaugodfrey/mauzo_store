@@ -5,9 +5,21 @@ Inventory
 {% endblock title %}
 
 {% block inventory %}
-<a class="mb-4 mt-2" href="{% url 'inventory:create_item' %}">
-    <button type="button" class="btn btn-dark">New item</button>
-</a>
+<div class="mb-4 mt-2">
+    <form action="{% url 'inventory:stocks_list' %}" style="float: right;">
+        <input type="search" class="form-control mr-sm-2" placeholder="search" aria-label="search" name="search">
+        <button type="submit" class="btn btn-outline-success my-2 my-sm-0">
+            Search
+        </button>
+    </form></br>
+</div>
+
+<div>
+    <p></p>
+    <a class="mb-4 mt-2" href="{% url 'inventory:create_item' %}">
+        <button type="button" class="btn btn-dark">New item</button>
+    </a>
+</div>
 
 <div class="container-fluid">
     <table class="table">

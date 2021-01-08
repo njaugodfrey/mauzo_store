@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 from .models import (
     Stock, UnitOfMeasurement, ReceivedGoods,
@@ -16,9 +17,21 @@ from mauzo.decorators import allowed_user
 @login_required
 @allowed_user(['Accounts'])
 def stocks_list(request):
-    context = {
-        'all_items': Stock.objects.order_by('stock_code').all()
-    }
+    search_item = request.GET.get('search')
+    if search_item:
+        all_items = Stock.objects.filter(
+            Q(stock_name__icontains=search_item) |
+            Q(stock_code__icontains=search_item)
+        )
+        context = {
+            'all_items': all_items
+        }
+    
+    else:
+        context = {
+            'all_items': Stock.objects.order_by('stock_code').all()
+        }
+
     return render(
         request, template_name='inventory/inventory_list.html',
         context=context
