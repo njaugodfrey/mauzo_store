@@ -131,9 +131,12 @@ urlpatterns = [
         'invoices/credit_notes/remove-item/',
         creditsales.remove_credit_note_items, name='cn-remove-product'
     ),
-]
-
-path(
-        'invoice/returns/print/return/<int:pk>/',
-        cashsales.print_sales_returns, name='print-credit-note'
+    path(
+        'invoice/credit_notes/print/<int:pk>',
+        creditsales.print_credit_note, name='print-credit-note'
     ),
+    path(
+        'invoice/credit_notes/<str:slug>-<int:pk>/return-item/<int:item_pk>/',
+        creditsales.invoice_sales_returns, name='cn-return-item'
+    ),
+]

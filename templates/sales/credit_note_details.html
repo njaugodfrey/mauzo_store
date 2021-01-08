@@ -5,7 +5,80 @@
     Credit Note | {{credit_note.cn_number}}
 {% endblock title %}
 
-{% block receipt %}
+{% block content %}
+<div class="container">
+    <span class="badge badge-primary mb-4">
+        Invoice - {{invoice.invoice.invoice_number}}
+    </span>
+    <table class="table table-bordered">
+      <thead>
+          <th>Item name</th>
+          <th>Quantity</th>
+          <th>Unit</th>
+          <th>Price</th>
+          <th>Amount</th>
+          <th>Actions</th>
+      </thead>
+      <tbody id="return-items">
+        {% for item in invoice_items %}
+            {% if item.credit_note != True %}
+                <tr>
+                    <td id="item-name">{{item.product.stock_name}}</td>
+                    <td id="item-quantity">{{item.quantity}}</td>
+                    <td id="item-uom">{{item.unit_of_measurement}}</td>
+                    <td id="item-price">{{item.price}}</td>
+                    <td id="item-amount">{{item.amount}}</td>
+                    <td id="">
+                    <a class="item-return" data-return-url="{% url 'sales:cn-return-item' slug=invoice.slug pk=invoice.id item_pk=item.pk %}" id="remove-item-{{item.pk}}">
+                        <button type="button" class="btn btn-danger">Remove</button>
+                        </a>
+                    </td>
+                </tr>
+            {% endif %}
+            
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center bg-warning">Empty receipt</td>
+                </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div>
+        <span class="badge badge-success mt-2 mb-4">
+            Voided items
+        </span>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <th>Item name</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+            <th>Price</th>
+            <th>Amount</th>
+        </thead>
+        <tbody id="returned-items-table">
+            {% for item in returned_items %}
+                <tr>
+                    <td id="item-name">{{item.product.stock_name}}</td>
+                    <td id="item-quantity">{{item.quantity}}</td>
+                    <td id="item-uom">{{item.unit_of_measurement}}</td>
+                    <td id="item-price">{{item.price}}</td>
+                    <td id="item-amount">{{item.amount}}</td>
+                </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center bg-warning">Empty receipt</td>
+                    </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+<script type="text/javascript" src="{% static 'scripts/salesrcpt.js' %}"></script>
+{% endblock javascript %}
     
-{% endblock receipt %}
     

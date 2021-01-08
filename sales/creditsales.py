@@ -207,60 +207,6 @@ def remove_invoice_items(request):
 
 @login_required
 @allowed_user(['Accounts'])
-def invoice_sales_returns(request, pk, slug, item_pk):
-    if request.method == 'POST':
-        item = InvoiceGoods.objects.get(
-            pk=int(QueryDict(request.body).get('item_pk'))
-        )
-
-        return_invoice = InvoiceGoods.objects.get(pk=item.pk)
-        return_invoice.void_sale = True
-        return_invoice.save()
-        response_data = {}
-
-        return_item = InvoiceGoodsReturns(
-            invoice_ref=SalesInvoice.objects.get(
-                pk=return_invoice.invoice_ref.pk
-            ),
-            sale_item_ref=InvoiceGoods.objects.get(pk=item.pk),
-            product=Stock.objects.get(pk=return_invoice.product.pk),
-            quantity=-float(return_invoice.quantity),
-            unit_of_measurement=UnitOfMeasurement.objects.get(
-                pk=return_invoice.unit_of_measurement.pk
-            ),
-            price=-return_invoice.price,
-            amount=-float(return_invoice.quantity) * float(float(return_invoice.price))
-        )
-        return_item.save()
-
-        stock_item = Stock.objects.get(pk=item.product.pk)
-        stock_item_quantity = stock_item.quantity
-        stock_item_unit = item.unit_of_measurement.base_quantity
-        stock_item.quantity = float(stock_item_quantity) + \
-            float(return_invoice.quantity * stock_item_unit)
-        stock_item.save()
-
-        response_data['result'] = 'Item saved successfully'
-        response_data['item_id'] = return_item.pk
-        response_data['item_name'] = return_item.product.stock_name
-        response_data['item_quantity'] = return_item.quantity
-        response_data['item_uom'] = return_item.unit_of_measurement.unit_name
-        response_data['item_price'] = return_item.price
-        response_data['total_cost'] = return_item.amount
-
-        return HttpResponse(
-            json.dumps(response_data),
-            content_type="application/json"
-        )
-    else:
-        return HttpResponse(
-            json.dumps({"nothing to see": "action not successful"}),
-            content_type="application/json"
-        )
-
-
-@login_required
-@allowed_user(['Accounts'])
 def invoice_returns_detail(request, slug, pk):
     invoice = get_object_or_404(SalesInvoice, pk=pk)
     items = InvoiceGoods.objects.filter(invoice_ref=invoice.id)
@@ -424,14 +370,14 @@ def credit_note_details(request, pk, slug):
         inv_form = CreditInvoiceForm(request.POST or None)
         inv = SalesInvoice.objects.get(invoice_number=cn.invoice)
         inv_items = InvoiceGoods.objects.filter(invoice_ref=inv.pk).select_related()
+        returned_items = InvoiceGoodsReturns.objects.filter(invoice_ref=inv.id).select_related()
 
         context = {
             'credit_note': cn,
             'invoice': inv,
             'invoice_form': inv_form,
             'invoice_items': inv_items,
-            'values_form': value_items_form,
-            'values_items': value_items
+            'returned_items': returned_items,
         }
         return render(
             request, template_name='sales/credit_note_details.html',
@@ -452,6 +398,75 @@ def credit_note_details(request, pk, slug):
 
 @login_required
 @allowed_user(['Accounts'])
+def invoice_sales_returns(request, pk, slug, item_pk):
+    if request.method == 'POST':
+        item = InvoiceGoods.objects.get(
+            pk=int(QueryDict(request.body).get('item_pk'))
+        )
+
+        return_invoice = InvoiceGoods.objects.get(pk=item.pk)
+        return_invoice.credit_note = True
+        return_invoice.save()
+        response_data = {}
+
+        return_item = InvoiceGoodsReturns(
+            invoice_ref=SalesInvoice.objects.get(
+                pk=return_invoice.invoice_ref.pk
+            ),
+            sale_item_ref=InvoiceGoods.objects.get(pk=item.pk),
+            product=Stock.objects.get(pk=return_invoice.product.pk),
+            quantity=-float(return_invoice.quantity),
+            unit_of_measurement=UnitOfMeasurement.objects.get(
+                pk=return_invoice.unit_of_measurement.pk
+            ),
+            price=-return_invoice.price,
+            amount=-float(return_invoice.quantity) * float(float(return_invoice.price))
+        )
+        return_item.save()
+
+        stock_item = Stock.objects.get(pk=item.product.pk)
+        stock_item_quantity = stock_item.quantity
+        stock_item_unit = item.unit_of_measurement.base_quantity
+        stock_item.quantity = float(stock_item_quantity) + \
+            float(return_invoice.quantity * stock_item_unit)
+        stock_item.save()
+
+        # log in stock card
+        stock_card = StockCardEntry(
+            stock=Stock.objects.get(pk=return_invoice.product.pk),
+            document='credit note - ' + CreditNote.objects.get(
+                invoice=return_invoice.invoice_ref
+            ).cn_number,
+            quantity=float(return_invoice.quantity),
+            price=float(return_item.price),
+            unit=return_item.unit_of_measurement,
+            amount=-float(return_invoice.quantity) * float(float(return_invoice.price))
+        )
+        stock_card.save()
+        return_item.log_number = stock_card.pk
+        return_item.save()
+
+        response_data['result'] = 'Item saved successfully'
+        response_data['item_id'] = return_item.pk
+        response_data['item_name'] = return_item.product.stock_name
+        response_data['item_quantity'] = return_item.quantity
+        response_data['item_uom'] = return_item.unit_of_measurement.unit_name
+        response_data['item_price'] = return_item.price
+        response_data['total_cost'] = return_item.amount
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+    else:
+        return HttpResponse(
+            json.dumps({"nothing to see": "action not successful"}),
+            content_type="application/json"
+        )
+
+
+@login_required
+@allowed_user(['Accounts'])
 def add_credit_note_items(request, pk, slug):
     pass
 
@@ -459,4 +474,10 @@ def add_credit_note_items(request, pk, slug):
 @login_required
 @allowed_user(['Accounts'])
 def remove_credit_note_items(request):
+    pass
+
+
+@login_required
+@allowed_user(['Accounts'])
+def print_credit_note(request):
     pass

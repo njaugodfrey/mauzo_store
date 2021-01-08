@@ -181,7 +181,7 @@ class InvoiceGoods (models.Model):
         verbose_name='Amount', default=0
     )
     credit_note = models.BooleanField(
-        verbose_name='Credit sale', null=True,
+        verbose_name='Credited sale', null=True,
         blank=True
     )
     log_number = models.IntegerField(
