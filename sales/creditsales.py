@@ -446,6 +446,11 @@ def invoice_sales_returns(request, pk, slug, item_pk):
         return_item.log_number = stock_card.pk
         return_item.save()
 
+        # update customer balance
+        customer = get_object_or_404(Customer, pk=return_invoice.invoice_ref.customer.pk)
+        customer.balance = customer.balance - return_item.amount
+        customer.save()
+
         response_data['result'] = 'Item saved successfully'
         response_data['item_id'] = return_item.pk
         response_data['item_name'] = return_item.product.stock_name

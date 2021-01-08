@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'mauzo.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'gatheeinit',
+        'NAME': 'gathee',
         'USER': 'njau',
         'PASSWORD': 'gathee',
         'HOST': 'localhost',
