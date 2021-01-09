@@ -448,7 +448,7 @@ def invoice_sales_returns(request, pk, slug, item_pk):
 
         # update customer balance
         customer = get_object_or_404(Customer, pk=return_invoice.invoice_ref.customer.pk)
-        customer.balance = customer.balance - return_item.amount
+        customer.balance = customer.balance + return_item.amount
         customer.save()
 
         response_data['result'] = 'Item saved successfully'

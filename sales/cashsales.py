@@ -22,7 +22,7 @@ def create_sales_receipt(request):
 
     if form.is_valid():
         obj = form.save(commit=False)
-        last_receipt = SalesReceipt.objects.all().order_by('receipt_number').last()
+        last_receipt = SalesReceipt.objects.all().order_by('id').last()
         if not last_receipt:
             obj.receipt_number = 'CS' + str(datetime.today().month).zfill(2) + \
                                  str(datetime.today().day).zfill(2) + '001'
@@ -342,6 +342,7 @@ def sales_returns(request, pk, slug, item_pk):
             unit=UnitOfMeasurement.objects.get(
                 pk=return_rcpt.unit_of_measurement.pk
             ),
+            price=float(return_rcpt.price),
             amount=-float(return_rcpt.quantity) * float(float(return_rcpt.price))
         )
         stock_card.save()
