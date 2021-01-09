@@ -14,6 +14,7 @@ CreditNote, ReturnsCreditItems, ValueCreditItems
 )
 from inventory.models import Stock, UnitOfMeasurement, StockCardEntry
 from accounts.cash_models import CashReceipt
+from accounts.models import vat
 from companyprofile.models import Company
 from customer.models import Customer
 from mauzo.decorators import allowed_user
@@ -260,25 +261,20 @@ def print_invoice(request, pk):
 
         items_table = []
         for item in items:
-            items_table.append(
-                [
+            response.writelines([
+                "{:<5}       {:<30}       {:^4}     {:^7}       {:^10}          {:>1}\n".format(
                     item.product.stock_code,
                     item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name,
-                    str(item.quantity),
+                    str(int(item.quantity)),
                     str(item.price),
-                    str(item.vat),
-                    str(item.amount)
-                ]
-            )
-        response.write(tabulate(
-            items_table,
-            headers=['Code', 'Description', 'Qty', 'Price', 'Tax', 'Amount']
-        ))
-
-        response.write('\n-----------------------------------------\n')
+                    str(item.amount),
+                    str(item.product.stock_vat_code.vat_code)
+                )
+            ])
+        
         #for vat in tax:
         response.write('VAT:               ' + str(round(tax.get('vat__sum'), 2)) + '\n')
-        exclusive = (tax.get('vat__sum'))/0.14
+        exclusive = (tax.get('vat__sum'))/0.16
         response.write('Taxable exclusive: ' + str(
             round(exclusive, 2)
         ) + '\n')

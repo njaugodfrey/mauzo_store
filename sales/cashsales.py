@@ -221,25 +221,23 @@ def print_sales_receipt(request, pk):
         response['Content-Disposition'] = 'attachment; filename=receipt.txt'
 
         response.write(company.company_name + '\n', )
-        header_table = [
-            [company.telephone_1, company.telephone_2],
-            ['PIN: ', company.kra_pin],
-            ['VAT', company.kra_vat]
-        ]
-        response.write(tabulate(header_table))
         response.writelines([
-            '\nNumber: ' + receipt.receipt_number + '\n',
+            company.telephone_1, company.telephone_2 + '\n',
+            'PIN: ', company.kra_pin, 'VAT', company.kra_vat + '\n'
+        ])
+        response.writelines([
+            'Number: ' + receipt.receipt_number + '\n',
             'Created: ' + str(receipt.sale_date.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
             'Printed: ' + str(print_time.strftime("%d-%m-%Y, %H:%M:%S")) + '\n',
         ])
         if receipt.walkin_customer:
             response.write('Customer: ' + receipt.walkin_customer + '\n')
-        response.write('-----------------------------------------\n')
+        response.write('----------------------------------------------\n')
         if receipt.printed:
             response.write('-----------  Receipt Duplicate  ---------\n')
         else:
             response.write('-------------- Tax Receipt --------------\n')
-        response.write('-----------------------------------------\n')
+        response.write('----------------------------------------------\n')
         response.writelines([
             'Code       Qty      Price        Tax         Amount\n'
         ])
@@ -247,13 +245,6 @@ def print_sales_receipt(request, pk):
         items_table = []
         for item in items:
             response.write(item.product.stock_name + ' - ' + item.unit_of_measurement.unit_name + '\n')
-            '''response.writelines([
-                item.product.stock_code + '       ',
-                str(item.quantity) + '      ',
-                str(item.price) + '   ',
-                str(item.product.stock_vat_code.vat_code) + '   ',
-                str(item.amount).rjust(10) + '\n'
-            ])'''
             response.writelines([
                 "{:<5}       {:<4}     {:<7}       {:<1}          {:<10}\n".format(
                     item.product.stock_code, str(int(item.quantity)),
@@ -262,10 +253,9 @@ def print_sales_receipt(request, pk):
                 )
             ])
         response.write('-----------------------------------------\n')
-        response.write('Total:        ' + str(receipt.total) + '\n')
         # for vat in tax:
+        exclusive = (tax.get('vat__sum')) / 0.16
         response.write('VAT:               ' + str(round(tax.get('vat__sum'), 2)) + '\n')
-        exclusive = (tax.get('vat__sum')) / 0.14
         response.write('Taxable exclusive: ' + str(
             round(exclusive, 2)
         ) + '\n')
@@ -401,8 +391,8 @@ def print_sales_returns(request, pk):
         response.write(company.company_name + '\n', )
         header_table = [
             [company.telephone_1, company.telephone_2],
-            ['PIN: ', company.kra_pin],
-            ['VAT', company.kra_vat]
+            ['PIN: ', company.kra_pin, 'VAT: ', company.kra_vat],
+            []
         ]
         response.write(tabulate(header_table))
         response.writelines([
@@ -429,7 +419,7 @@ def print_sales_returns(request, pk):
         response.write('-----------------------------------------\n')
         # for vat in tax:
         response.write('Tax:          ' + str(round(tax.get('vat__sum'), 2)) + '\n')
-        inclusive = (tax.get('vat__sum')) / 0.14
+        inclusive = (tax.get('vat__sum')) / 0.16
         response.write('Taxable exclusive: ' + str(
             round(inclusive, 2)
         ) + '\n')
