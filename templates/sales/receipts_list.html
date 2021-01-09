@@ -24,12 +24,13 @@ Sales - All receipts
                     <input type="submit" value="Submit">
                 </form>
             </div>
-            <div class="report mt-3">
-                <form class="mt-1" action="{% url 'sales:make-report' %}" method="get">
-                    {% csrf_token %}
-                    {{report_form}}
-                    <input type="submit" value="Submit">
-                </form>
+            <div class="mb-4 mt-2">
+                <form action="{% url 'sales:all_receipts' %}" style="float: right;">
+                    <input type="search" class="form-control mr-sm-2" placeholder="search" aria-label="search" name="search">
+                    <button type="submit" class="btn btn-outline-success my-2 my-sm-0">
+                        Search
+                    </button>
+                </form></br>
             </div>
         {% endifequal %}
         

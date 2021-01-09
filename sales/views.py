@@ -2,6 +2,7 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, QueryDict
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.utils.timezone import datetime
 
@@ -23,14 +24,24 @@ modules with different kinds of views.
 # sales receipt
 @login_required
 def receipts_list(request):
-    receipts = SalesReceipt.objects.all().order_by('-receipt_number')
-    filter_form = ReceiptsFilterForm(request.POST or None)
-    report_form = DateReportForm(request.POST or None)
-    context = {
-        'all_receipts': receipts,
-        'filter_form': filter_form,
-        'report_form': report_form
-    }
+    search_receipt = request.GET.get('search')
+
+    if search_receipt:
+        all_receipts = SalesReceipt.objects.filter(
+            Q(receipt_number__icontains=search_receipt)
+        ).order_by('-receipt_number')
+        context = {
+            'all_receipts': all_receipts
+        }
+        
+    else:
+        receipts = SalesReceipt.objects.all().order_by('-receipt_number')
+        filter_form = ReceiptsFilterForm(request.POST or None)
+        context = {
+            'all_receipts': receipts,
+            'filter_form': filter_form
+        }
+
     return render(
         request, template_name='sales/receipts_list.html',
         context=context
